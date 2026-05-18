@@ -1,0 +1,124 @@
+curl --location "https://api.mistral.ai/v1/chat/completions" \
+     --header 'Content-Type: application/json' \
+     --header 'Accept: application/json' \
+     --header "Authorization: Bearer $MISTRAL_API_KEY" \
+     --data '{
+    "model": "mistral-large-latest",
+    "messages": [
+     {
+        "role": "user",
+        "content": "What should Marc Linster do with his time today to be truely happy?"
+      }
+    ]
+  }'
+
+
+curl https://api.mistral.ai/v1/embeddings \
+ -X POST \
+ -H 'Authorization: Bearer $MISTRAL_API_KEY' \
+ -H 'Content-Type: application/json' \
+ -d '{
+  "input": "Thgis is a longer text where we want to generate and embedding for. It should be more than a few words to see how the model handles longer input.",
+  "model": "mistral-embed"
+}'   
+
+
+curl https://api.mistral.ai/v1/embeddings \
+ -X POST \
+ -H 'Authorization: Bearer $MISTRAL_API_KEY' \
+ -H 'Content-Type: application/json' \
+ -d '{
+  "input": "Test short",
+  "model": "mistral-embed"
+}'   
+
+
+curl -X POST "https://api.mistral.ai/v1/embeddings" \
+     -H "Content-Type: application/json" \
+     -H "Authorization: Bearer ${MISTRAL_API_KEY}" \
+     -d '{"model": "mistral-embed", "input": ["Embed this sentence.", "As well as this one."]}' \
+     -o embedding.json
+
+
+
+  python3 -mjson.tool 
+
+
+  --- things that work
+
+curl -X POST "https://api.mistral.ai/v1/embeddings" \
+     -H "Content-Type: application/json" \
+     -H "Authorization: Bearer ${MISTRAL_API_KEY}" \
+     -d '{"model": "mistral-embed", "input": ["Embed this sentence.", "As well as this one."]}'    
+
+
+curl -X POST "https://api.mistral.ai/v1/embeddings" \
+     -H "Content-Type: application/json" \
+     -H "Authorization: Bearer ${MISTRAL_API_KEY}" \
+     -d '{"model": "codestral-embed", "input": ["Embed this sentence."], "output_dimension":6}' -o embedding.json 
+
+curl -X POST "https://api.mistral.ai/v1/embeddings" \
+     -H "Content-Type: application/json" \
+     -H "Authorization: Bearer ${MISTRAL_API_KEY}" \
+     -d '{"model": "codestral-embed", "input": ["Embed this sentence."], "output_dimension":6}'\
+     -o embedding.json        
+
+
+curl --location "https://api.mistral.ai/v1/chat/completions" \
+     --header 'Content-Type: application/json' \
+     --header 'Accept: application/json' \
+     --header "Authorization: Bearer $MISTRAL_API_KEY" \
+     --data '{
+    "model": "mistral-large-latest",
+    "messages": [
+     {
+        "role": "user",
+        "content": "You are a teacher at the Digital Learning Hub. Explain the CURL API in 200 characters."
+      }
+    ]
+  }'     
+
+  curl --location "https://api.mistral.ai/v1/chat/completions" \
+     --header 'Content-Type: application/json' \
+     --header 'Accept: application/json' \
+     --header "Authorization: Bearer $MISTRAL_API_KEY" \
+     --data '{
+    "model": "mistral-large-latest",
+    "messages": [
+     {
+        "role": "user",
+        "content": "You are a teacher at the Digital Learning Hub. Explain the CURL API in two paragraphs. Explain first in French, then in English."
+      }
+    ]
+  }' -o chat.json
+
+
+  curl -X POST "https://api.mistral.ai/v1/chat/completions" \
+     -H 'Content-Type: application/json' \
+     -H 'Accept: application/json' \
+     -H "Authorization: Bearer $MISTRAL_API_KEY" \
+     -d '{
+    "model": "mistral-large-latest",
+    "messages": [
+     {
+        "role": "user",
+        "content": "You are a teacher at the Digital Learning Hub. Explain the CURL API in 200 characters."
+      }
+    ]
+  }'
+
+ curl -X POST "https://api.mistral.ai/v1/chat/completions" \
+     -H 'Content-Type: application/json' \
+     -H 'Accept: application/json' \
+     -H "Authorization: Bearer $MISTRAL_API_KEY" \
+     -d '{
+    "model": "mistral-large-latest",
+    "temperature": 1.0,
+    "messages": [
+     {
+        "role": "user",
+        "content": "Write a short sentence about clouds"
+      }
+    ]
+  }'
+
