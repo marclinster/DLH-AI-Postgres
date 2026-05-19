@@ -1,0 +1,12 @@
+{
+    "model": "mistral-large-latest",
+    "messages": [
+     {
+        "role": "user",
+        "content": "You are a Postgres DBA. Create a query that selects selects customers and their total purchases from a 
+        table with the following DDL: CREATE TABLE customers (id SERIAL PRIMARY KEY, name TEXT NOT NULL, purchase_value NUMERIC(10, 2)); 
+        Format your response in plain text. 
+        "
+      }
+    ]
+  }

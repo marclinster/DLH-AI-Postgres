@@ -1,0 +1,13 @@
+{
+    "model": "mistral-large-latest",
+    "messages": [
+     {
+        "role": "user",
+        "content": "You are an instructor at the Luxembourg Digital Learning Hub. 
+        Create a 2 paragraph explanation for the use of curl.
+        Add two examples for POST and GET.
+        Finish with a 5 line poem about using curl while the moon shines.
+        "
+      }
+    ]
+  }

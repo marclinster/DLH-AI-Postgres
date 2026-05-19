@@ -1,0 +1,78 @@
+
+https://www.example.com/
+
+
+curl -o thatpage.html https://www.example.com/
+
+curl -X POST "https://api.mistral.ai/v1/embeddings" \
+     -H "Content-Type: application/json" \
+     -H "Authorization: Bearer ${MISTRAL_API_KEY}" \
+     -d '{"model": "codestral-embed", "input": ["Embed this sentence."], "output_dimension":6}'
+
+curl -X POST "https://api.mistral.ai/v1/embeddings" \
+     -H "Content-Type: application/json" \
+     -H "Authorization: Bearer ${MISTRAL_API_KEY}" \
+     -d '{"model": 
+"codestral-embed", 
+"input": ["Embed this sentence."], 
+"output_dimension":6}' \
+     -o embedding6.json   
+
+jq '.' embedding6.json
+jq '.id' embedding6.json
+jq '.data[0]' embedding6.json
+jq '.data[0].embedding' embedding6.json
+jq '.data[0].embedding[1]' embedding6.json
+
+curl -X POST "https://api.mistral.ai/v1/chat/completions" \
+     -H 'Content-Type: application/json' \
+     -H 'Accept: application/json' \
+     -H "Authorization: Bearer $MISTRAL_API_KEY" \
+     -d '{
+    "model": "mistral-large-latest",
+    "messages": [
+     {
+        "role": "user",
+        "content": "You are a teacher at the Digital Learning Hub. Explain the CURL API in 200 characters."
+      }
+    ]
+  }'
+
+
+curl -X POST "https://api.mistral.ai/v1/chat/completions" \
+     -H 'Content-Type: application/json' \
+     -H 'Accept: application/json' \
+     -H "Authorization: Bearer $MISTRAL_API_KEY" \
+     -d '{
+    "model": "mistral-large-latest",
+    "messages": [
+     {
+        "role": "user",
+        "content": "You are a teacher at the Digital Learning Hub. Explain the CURL API in 200 characters."
+      }
+    ]
+  }' \
+  -o chat-output.json
+
+
+curl -X POST "https://api.mistral.ai/v1/chat/completions" \
+     -H 'Content-Type: application/json' \
+     -H 'Accept: application/json' \
+     -H "Authorization: Bearer $MISTRAL_API_KEY" \
+     -d @curl-haiku.txt\
+  -o chat-output.md
+
+
+curl -X POST "https://api.mistral.ai/v1/chat/completions" \
+     -H 'Content-Type: application/json' \
+     -H 'Accept: application/json' \
+     -H "Authorization: Bearer $MISTRAL_API_KEY" \
+     -d @llm-instructions.txt\
+  -o chat-output.md
+
+jq '.' chat-output.md
+
+jq '.choices[0].message.content' chat-output.md
+jp '.usage.prompt_tokens'
+jq '.usage.prompt_tokens' chat-output.md
+jq '.usage.completion_tokens' chat-output.md
