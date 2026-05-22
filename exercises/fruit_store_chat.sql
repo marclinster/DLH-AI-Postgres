@@ -140,16 +140,6 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-/* 
-
-Test the function to generate the text for embedding 
-This will return a string that combines the fruit name and description for all the fruit 
-
-SELECT name, description, api.mistral_embed (api.generate_embedding_text(id)) AS embedding
-    FROM fruit;
-
-*/    
-
 
 /* 
 The following function combines the previous two functions to generate an embedding for a given fruit ID, 
