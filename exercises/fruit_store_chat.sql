@@ -167,6 +167,7 @@ This query will generate embeddings for all fruits in the fruit table, store the
 It may fail if you have a lot of fruits and hit rate limits, which is why we will create a batch processing 
 function in the next step, but you can test it with a small number of fruits to see how it works
 
+*/
 
 INSERT INTO embedding (fruit_id, embedding_vector)
     SELECT id, api.fruit_embedding(id)
@@ -307,6 +308,14 @@ UPDATE fruit
     SET description = 'A little tart, light yellow, medium firm' 
     WHERE name = 'White Grape';
 
+Call Tree:
+INSERT INTO fruit (name, description)
+    -> tr_fruit_embedding() [AFTER INSERT trigger]
+    -> api.tr_fruit_embedding()
+    -> api.fruit_embedding(p_id)
+        -> api.generate_embedding_text(p_id)
+        -> api.mistral_embed(input_text)
+
 */
 
 /* 
@@ -315,43 +324,36 @@ which includes the time to call the Mistral API and store the embedding in the d
 Also watch the messages to see the notice from the embedding generation.
 the target text is "Select tart and light yellow fruits for me" will be embedded multiple times!
 
+*/
 
-SELECT name, e.embedding_vector <=> api.mistral_embed ('tart and light yellow') AS likeness 
-    FROM fruit f
-    JOIN embedding e ON f.id = e.fruit_id
-    ORDER BY likeness ASC; 
+SELECT name,
+       e.embedding_vector <=> api.mistral_embed ('tart and light yellow') AS likeness
+FROM fruit f
+JOIN embedding e ON f.id = e.fruit_id
+ORDER BY likeness ASC;
 
+/*
+Running the same query as a Common Table Expression (CTE) to calculate the target embedding once, and 
+then use it for all the similarity comparisons, which is more efficient than calculating the target 
+embedding for each row in the fruit table.
 
-  Running the same query as a Common Table Expression (CTE) to calculate the target embedding once, and 
-  then use it for all the similarity comparisons, which is more efficient than calculating the target 
-  embedding for each row in the fruit table.
+*/ 
 
 
 WITH q AS
     (SELECT api.mistral_embed ('tart and light yellow') AS target_embedding)
 SELECT f.name,
-    e.embedding_vector <=> q.target_embedding as likeness
+       e.embedding_vector <=> q.target_embedding as likeness
 FROM fruit f
-    JOIN embedding e ON f.id = e.fruit_id
-    JOIN q ON TRUE
+JOIN embedding e ON f.id = e.fruit_id
+JOIN q ON TRUE
 ORDER BY likeness ASC;
 
 
-WITH q AS
-        (SELECT api.mistral_embed ('Select tart and light yellow fruits for me') AS target_embedding)
-SELECT f.name, e.embedding_vector <=> q.target_embedding as likeness
-    FROM fruit f
-    JOIN embedding e ON f.id = e.fruit_id
-    JOIN q ON TRUE
-    ORDER BY likeness ASC
-LIMIT 2;
-
-*/
-
 /*
 We are building the chatbot consisting of
- - the Retriever - api.sf_retrieve_similar_fruit, which takes a target text and returns the most similar fruits 
-   from the database based on the embedding vectors, along with their descriptions and likeness scores
+- the Retriever - api.sf_retrieve_similar_fruit, which takes a target text and returns the most similar fruits 
+  from the database based on the embedding vectors, along with their descriptions and likeness scores
 
 - the Narrator - api.sf_narrate_selected_fruit, which takes the results from the retriever and generates a natural 
   language text response using the Mistral Chat API, which summarizes the results from the similarity search and explains the likeness scores.
@@ -394,6 +396,14 @@ BEGIN
     RETURN v_similar_fruit;
 END;
 $$;
+
+/*
+
+Call Tree:
+api.sf_retrieve_similar_fruit (p_target TEXT, p_limit INT) 
+    -> api.mistral_embed(input_text) -- for the target text, calculated once in the common table expression (CTE) and reused for all comparisons 
+    -> SQL query to calculate the likeness scores and return the top matching fruits as a JSONB array
+*/        
 
 /* 
 Test the retriever function - this will return a JSONB array with the most similar fruits based on the target text, 
@@ -464,8 +474,13 @@ except urllib.error.HTTPError as e:
 $$;
 
 
-/* Test the narrator function - this should return a natural language text that summarizes the results from the similarity search, and 
-   will print an error if the API key is not set or if there is an issue with the API call
+/* 
+Call tree:
+api.sf_narrate_selected_fruit (p_question TEXT, p_selected_fruit JSONB) 
+    -> Mistral Chat API (external) - takes the user question and the JSONB array of selected fruits, and generates a natural language response that summarizes the results and explains the likeness
+
+Test the narrator function - this should return a natural language text that summarizes the results from the similarity search, and 
+will print an error if the API key is not set or if there is an issue with the API call
 SELECT api.sf_narrate_selected_fruit (
     'Select tart and light yellow fruits for me',
     '[{"id": 4, "name": "Lemon", "likeness": 0.20149098421582978, "description": "Very tart, yellow, firm"}, 
@@ -499,4 +514,11 @@ results from the similarity search, and will print an error if the API key is no
 SELECT api.coordinator_fruit_selection ('Select tart and light yellow fruits for me');
 
 SELECT api.coordinator_fruit_selection ('I want a starchy and sweet fruit');
+
+Call Tree:
+api.coordinator_fruit_selection (p_target TEXT)
+    -> api.sf_retrieve_similar_fruit(p_target, p_limit)  
+            -> api.mistral_embed(input_text)
+    -> api.sf_narrate_selected_fruit(p_question, p_selected_fruit)  
+        -> Mistral Chat API (external)
 */

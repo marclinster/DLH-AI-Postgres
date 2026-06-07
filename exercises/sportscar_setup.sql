@@ -1,5 +1,5 @@
 /*
-This SQL script sets up the database schema for a sportscars database, which includes tables for
+This SQL script sets up the database schema for a sportscar database, which includes tables for
 brands, countries, colors, models, configurations (model + color combinations), and embeddings for the configurations.
 
 This should be run inside the database sportscars, which is created in the master_setup.sql script. 

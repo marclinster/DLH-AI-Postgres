@@ -14,7 +14,9 @@ sportscar configurations that are priced between $50,000 and $100,000.
 
 */
 
--- a simple example that shows how toadd a price condition to the basic selection query
+CREATE SCHEMA IF NOT EXISTS api;
+
+-- a simple example that shows how to add a price condition to the basic selection query
 
 -- query without a price condition:
 
@@ -181,6 +183,9 @@ $$;
 
 /*
 Test the coordinator function with a query that includes the price condition, for example, to find similar cars that are priced between $50,000 and $100,000:
+
 SELECT api.sf_coordinator('I am looking for a red sports car from Italy or Germany that is fun to drive. What are my best options?', '[50000, 100000]');
+
+SELECT api.sf_coordinator('I am looking for a white sports car from Germany or the UK with a sleek design and good performance. What are my best options?', '[30000, 100000]');
 
 */

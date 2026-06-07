@@ -21,4 +21,11 @@ CREATE DATABASE ecommerce;
 \i databases/ecommerce_datamodel.sql
 \i databases/ecommerce_dataset.sql
 
+DROP DATABASE IF EXISTS sportscar WITH (FORCE);
+CREATE DATABASE sportscar;
+\c sportscar
+
+\i databases/sportscar_setup.sql
+
+
 \c postgres
