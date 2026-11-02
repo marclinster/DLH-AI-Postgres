@@ -4,9 +4,9 @@ DROP DATABASE IF EXISTS simple_fruit_store WITH (FORCE);
 CREATE DATABASE simple_fruit_store;
 \c simple_fruit_store
 
-\i databases/simple_fruit_store_setup.sql
+\i db-setup/simple_fruit_store_setup.sql
 
-
+/*
 DROP DATABASE IF EXISTS fruit_store WITH (FORCE);
 CREATE DATABASE fruit_store;
 \c fruit_store
@@ -27,5 +27,6 @@ CREATE DATABASE sportscar;
 
 \i databases/sportscar_setup.sql
 
+*/
 
 \c postgres
