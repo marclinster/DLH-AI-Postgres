@@ -3,7 +3,7 @@
 Master database setup script. This script will create the following databases:
 - simple_fruit_store
 - fruit_store
-- ecommerce
+- commerce
 - sportscar
 
 It requires Postgres 18, pgvector extension, and plpython3u extension to be installed.
