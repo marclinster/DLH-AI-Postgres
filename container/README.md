@@ -1,9 +1,10 @@
-# PostgreSQL 18.6 + PL/Python3u
+# PostgreSQL 18.6 + PL/Python3u + pgvector
 
 A minimal container based on the official `postgres:18.6` image.
 
 Includes:
-- **PostgreSQL 18.6** with the `plpython3u` extension (enabled in `postgres` and `template1`)
+- **PostgreSQL 18.6** with the `plpython3u` and `vector` (pgvector) extensions installed
+  (enable per database with `CREATE EXTENSION plpython3u;` / `CREATE EXTENSION vector;`)
 - Default database `postgres`, superuser `postgres` / password `postgres`
 - **psql**, preconfigured (`PGUSER`, `PGPASSWORD`, `PGDATABASE`) to log in as `postgres`
 - **jq**
