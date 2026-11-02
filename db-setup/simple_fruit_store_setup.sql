@@ -32,7 +32,3 @@ INSERT INTO fruit_vectors (name, description, features) VALUES
 
 
 
--- Optional index for faster KNN (ivfflat requires ANALYZE after insert)
-CREATE INDEX ON fruit_vectors USING ivfflat (features vector_l2_ops) WITH (lists = 10);
-ANALYZE fruit_vectors;
-
