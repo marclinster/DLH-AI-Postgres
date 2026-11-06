@@ -12,6 +12,20 @@ Includes:
 
 > The credentials are for local development and training only.
 
+## API keys
+
+Keys such as `MISTRAL_API_KEY` are passed into the container as environment variables
+from `container/secrets.env`, which is git-ignored:
+
+```bash
+cd container
+cp secrets.env.example secrets.env   # then edit secrets.env and add your key
+docker compose up -d                 # recreates the container with the new variables
+```
+
+The variable is then available to `curl` inside the container and to the Postgres
+server itself (e.g. `os.environ['MISTRAL_API_KEY']` in PL/Python).
+
 ## Build and run
 
 ```bash
