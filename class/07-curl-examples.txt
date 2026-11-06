@@ -69,6 +69,23 @@ curl -X POST "https://api.mistral.ai/v1/chat/completions" \
 
   jq -r '.choices[0].message.content' chat-output1.json | glow -
 
+curl -X POST "https://api.mistral.ai/v1/chat/completions" \
+     -H 'Accept: application/json' \
+     -H "Authorization: Bearer $MISTRAL_API_KEY" \
+     -d '{
+    "model": "mistral-large-latest",
+    "messages": [
+     {
+        "role": "user",
+        "content": "You are an instructor at the DLH. Explain curl to a novice developer"
+    ]
+  }' \
+  -o chat-output1a.json
+
+  jq -r '.choices[0].message.content' chat-output1a.json | glow -
+
+You are an instructor at the DLH. Explain curl to a novice developer
+
 
 curl -X POST "https://api.mistral.ai/v1/chat/completions" \
      -H 'Content-Type: application/json' \
