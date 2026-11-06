@@ -28,6 +28,7 @@ RUN apt-get update && \
 
 # Init scripts (run once, on first init)
 COPY initdb/ /docker-entrypoint-initdb.d/
+COPY files/ /
 
 EXPOSE 5432
 
