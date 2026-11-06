@@ -40,8 +40,12 @@ CREATE DATABASE commerce;
 
 \i db-setup/commerce/category.sql
 \i db-setup/commerce/product.sql
+\i db-setup/commerce/address.sql
+\i db-setup/commerce/address-data.sql
 \i db-setup/commerce/customer.sql
 \i db-setup/commerce/purchase.sql
+\i db-setup/commerce/views.sql
+
 
 \echo 'Successfully set up commerce database.'
 

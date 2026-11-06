@@ -40,7 +40,8 @@ CREATE TABLE customer  (
     first_name TEXT,
     last_name TEXT,
     since DATE,
-    phone_numbers JSONB
+    phone_numbers JSONB,
+    address_id INTEGER REFERENCES address(id)
 );    
 
 CREATE OR REPLACE PROCEDURE insert_random_customers(num_customers INT)
@@ -71,25 +72,6 @@ END;
 $$;
 
 CALL insert_random_customers(5000);
-
-
-/*
-
-    {
-        "work": {
-            [
-                {"country_code": "(+352)", "number": "123 456 789"},
-                {"country_code": "(+49)", "number": "987 654 321"}]
-        },
-        "private": {
-            [
-                {"country_code": "(+352)", "number": "234 567 890"},
-                {"country_code": "(+49)", "number": "345 678 901"}]     
-        }
-    }
-
-
-*/
 
 CREATE OR REPLACE PROCEDURE assign_random_phone_numbers_to_customers()
 LANGUAGE plpgsql
@@ -145,4 +127,19 @@ $$;
 
 CALL assign_random_phone_numbers_to_customers();
 
+-- assign random addresses to customers
+CREATE OR REPLACE PROCEDURE assign_random_addresses_to_customers()
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_customer_id INT;
+    v_address_id INT;
+BEGIN
+    FOR v_customer_id IN SELECT id FROM customer LOOP
+        SELECT id INTO v_address_id FROM address ORDER BY random() LIMIT 1;
+        UPDATE customer SET address_id = v_address_id WHERE id = v_customer_id;
+    END LOOP;
+END;
+$$;
 
+CALL assign_random_addresses_to_customers();
