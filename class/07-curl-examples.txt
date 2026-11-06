@@ -46,7 +46,7 @@ curl -X POST "https://api.mistral.ai/v1/chat/completions" \
     "messages": [
      {
         "role": "user",
-        "content": "You are a teacher at the Digital Learning Hub. Explain the CURL API in 200 characters."
+        "content": "You are a You are a geek talking to a junior programmer. Explain the CURL API in 200 characters."
       }
     ]
   }'
@@ -61,11 +61,13 @@ curl -X POST "https://api.mistral.ai/v1/chat/completions" \
     "messages": [
      {
         "role": "user",
-        "content": "You are a teacher at the Digital Learning Hub. Explain the CURL API in 200 characters."
+        "content": "You are a You are a geek talking to a junior programmer. Explain the CURL API in 200 characters."
       }
     ]
   }' \
-  -o chat-output.json
+  -o chat-output1.json
+
+  jq -r '.choices[0].message.content' chat-output1.json | glow -
 
 
 curl -X POST "https://api.mistral.ai/v1/chat/completions" \
@@ -73,7 +75,7 @@ curl -X POST "https://api.mistral.ai/v1/chat/completions" \
      -H 'Accept: application/json' \
      -H "Authorization: Bearer $MISTRAL_API_KEY" \
      -d @curl-haiku.txt\
-  -o chat-output.txt
+  -o chat-output2.json
 
 
 curl -X POST "https://api.mistral.ai/v1/chat/completions" \
@@ -81,11 +83,13 @@ curl -X POST "https://api.mistral.ai/v1/chat/completions" \
      -H 'Accept: application/json' \
      -H "Authorization: Bearer $MISTRAL_API_KEY" \
      -d @llm-instructions.txt\
-  -o chat-output.md
+  -o chat-output3.json
 
-jq '.' chat-output.txt
 
-jq '.choices[0].message.content' chat-output.md
-jq '.usage.prompt_tokens' chat-output.md
-jq '.usage.completion_tokens' chat-output.md
-jq '.usage.total_tokens' chat-output.md
+
+jq '.' chat-output.json
+
+jq '.choices[0].message.content' chat-output.json
+jq '.usage.prompt_tokens' chat-output.json
+jq '.usage.completion_tokens' chat-output.json
+jq '.usage.total_tokens' chat-output.json
