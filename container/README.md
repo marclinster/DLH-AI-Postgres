@@ -9,6 +9,7 @@ Includes:
 - **psql**, preconfigured (`PGUSER`, `PGPASSWORD`, `PGDATABASE`) to log in as `postgres`
 - **jq**
 - **curl**
+- **vi** (`vim-tiny`)
 
 > The credentials are for local development and training only.
 
@@ -59,6 +60,7 @@ docker exec pg18 psql -c "SELECT extname, extversion FROM pg_extension WHERE ext
 docker exec pg18 psql -c "DO \$\$ plpy.notice('hello from python') \$\$ LANGUAGE plpython3u;"
 docker exec pg18 jq --version
 docker exec pg18 curl --version
+docker exec pg18 vi --version | head -1
 ```
 
 ## Reset
