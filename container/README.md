@@ -10,6 +10,7 @@ Includes:
 - **jq**
 - **curl**
 - **vi** (`vim-tiny`)
+- **glow** (Markdown viewer, e.g. `jq -r '.choices[0].message.content' chat-output.md | glow -`)
 
 > The credentials are for local development and training only.
 
@@ -61,6 +62,7 @@ docker exec pg18 psql -c "DO \$\$ plpy.notice('hello from python') \$\$ LANGUAGE
 docker exec pg18 jq --version
 docker exec pg18 curl --version
 docker exec pg18 vi --version | head -1
+docker exec pg18 glow --version
 ```
 
 ## Reset

@@ -73,7 +73,7 @@ curl -X POST "https://api.mistral.ai/v1/chat/completions" \
      -H 'Accept: application/json' \
      -H "Authorization: Bearer $MISTRAL_API_KEY" \
      -d @curl-haiku.txt\
-  -o chat-output.md
+  -o chat-output.txt
 
 
 curl -X POST "https://api.mistral.ai/v1/chat/completions" \
@@ -83,7 +83,7 @@ curl -X POST "https://api.mistral.ai/v1/chat/completions" \
      -d @llm-instructions.txt\
   -o chat-output.md
 
-jq '.' chat-output.md
+jq '.' chat-output.txt
 
 jq '.choices[0].message.content' chat-output.md
 jq '.usage.prompt_tokens' chat-output.md
