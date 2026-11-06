@@ -3,8 +3,6 @@
 Database setup script for the DLH Advanced SQL course. This file provides
 an overview of triggers (row and statement level) in SQL.
 
-The examples use the database dlh_adv_sql, which is created by the setup.sql script.
-
 2026 Copyright: Marc Linster
 Last updated Oct 6, 2026
 
