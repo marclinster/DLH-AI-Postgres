@@ -70,6 +70,7 @@ curl -X POST "https://api.mistral.ai/v1/chat/completions" \
   jq -r '.choices[0].message.content' chat-output1.json | glow -
 
 curl -X POST "https://api.mistral.ai/v1/chat/completions" \
+     -H 'Content-Type: application/json' \
      -H 'Accept: application/json' \
      -H "Authorization: Bearer $MISTRAL_API_KEY" \
      -d '{
@@ -78,6 +79,7 @@ curl -X POST "https://api.mistral.ai/v1/chat/completions" \
      {
         "role": "user",
         "content": "You are an instructor at the DLH. Explain curl to a novice developer"
+     }
     ]
   }' \
   -o chat-output1a.json
