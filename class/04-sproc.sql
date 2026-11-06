@@ -478,6 +478,30 @@ $$ LANGUAGE plpython3u;
 
 CALL ensure_description_uppercase();
 
+-- do the same thing using prepared statements (more efficient)
+CREATE OR REPLACE PROCEDURE ensure_description_uppercase_prep()
+AS $$
+import plpy
+# prepare the update statement once
+update_plan = plpy.prepare(
+    "UPDATE category SET description = $1 WHERE id = $2",
+    ["text", "integer"]
+)
+rows = plpy.execute("SELECT id, description FROM category")
+for row in rows:
+   desc = row['description']
+   if desc and not desc[0].isupper():
+       # Print the description that needs to be fixed
+       plpy.notice("This description needs to be fixed: %s" % desc)
+       # Capitalize the first letter of the description
+       new_desc = desc[0].upper() + desc[1:]
+       plpy.notice("Fixed: %s" % new_desc)
+       # execute the prepared statement with the new description and id
+       plpy.execute(update_plan, [new_desc, row['id']])
+$$ LANGUAGE plpython3u;
+
+CALL ensure_description_uppercase_prep();
+
 -- Find all lowercase all descriptions
 
 CREATE OR REPLACE PROCEDURE ensure_description_lowercase()
@@ -540,9 +564,44 @@ SELECT insert_category(999, 'Test for PK violation', 'This is a test category');
 
 
 -- Add a purchase of 1 liter of milk for every customer in Dudelange
--- for every day of February 2026 (uses a prepared statement with parameters)
+-- for every day of February 2026 
 
-CREATE OR REPLACE PROCEDURE add_milk_purchases_dudelange()
+-- this version does not use a prepared statement, so it is less efficient
+CREATE OR REPLACE PROCEDURE add_milk_purchases_dudelange_no_prep()
+AS $$
+import plpy
+from datetime import date, timedelta
+
+# find all customers whose address is in the commune of Dudelange
+customers = plpy.execute(
+    "SELECT c.id FROM customer c "
+    "JOIN address a ON c.address_id = a.id "
+    "WHERE a.commune = 'Dudelange'"
+)
+plpy.notice("Found %d customers in Dudelange" % len(customers))
+
+count = 0
+for customer in customers:
+    day = date(2026, 2, 1)
+    while day < date(2026, 3, 1):
+        # use % formatting to create the query string
+        # (safe here: the values are an integer and a date, not user-supplied text)
+        insert_sql = (
+            "INSERT INTO purchase (date, customer_id, product_nbr, quantity) "
+            "VALUES ('%s', %d, 'milk', 1)"
+        ) % (day.isoformat(), customer['id'])
+        plpy.execute(insert_sql)
+        count += 1
+        day += timedelta(days=1)
+
+plpy.notice("Inserted %d milk purchases" % count)
+$$ LANGUAGE plpython3u;
+
+CALL add_milk_purchases_dudelange_no_prep();
+
+
+--- this version uses a prepared statement, so it is more efficient
+CREATE OR REPLACE PROCEDURE add_milk_purchases_dudelange_prep_statements()
 AS $$
 import plpy
 from datetime import date, timedelta
@@ -587,48 +646,6 @@ SELECT COUNT(*), MIN(p.date), MAX(p.date), COUNT(DISTINCT p.customer_id)
      AND p.date BETWEEN '2026-02-01' AND '2026-02-28';
 
 
--- Same logic as decrease_price_differentiated_2, but in PL/Python using prepared statements.
--- (PL/pgSQL caches plans automatically and cannot use explicit prepared statements,
---  so this is where plpy.prepare is useful.)
--- Each statement is prepared once with typed parameters ($1, $2) and then executed
--- for every product - no string formatting or quote escaping needed.
 
-CREATE OR REPLACE PROCEDURE decrease_price_differentiated_2_prep_statement
-    (IN p_category_name TEXT, IN p_price_decrease NUMERIC)
-AS $$
-import plpy
-from plpy import spiexceptions
 
-# prepare the SELECT and the UPDATE once
-select_plan = plpy.prepare(
-    "SELECT product_nbr, product_name, category_name, product_price "
-    "FROM product_category_vw WHERE category_name = $1",
-    ["text"]
-)
-update_plan = plpy.prepare(
-    "UPDATE product SET price = price - $1 WHERE product_nbr = $2 "
-    "RETURNING OLD.price AS old_price, NEW.price AS new_price",
-    ["numeric", "text"]
-)
 
-for product in plpy.execute(select_plan, [p_category_name]):
-    try:
-        # a subtransaction rolls back only this update if it fails
-        # (same as the BEGIN ... EXCEPTION block in PL/pgSQL)
-        with plpy.subtransaction():
-            result = plpy.execute(update_plan, [p_price_decrease, product['product_nbr']])
-        plpy.notice("Decreased price for %s from %s to %s because it is a member of %s category" % (
-            product['product_name'], result[0]['old_price'], result[0]['new_price'],
-            product['category_name']))
-    except spiexceptions.CheckViolation as e:
-        # the constraint name is the last element of spidata
-        constraint = e.spidata[-1]
-        plpy.notice("Price adjustment for %s violated check constraint: %s" % (
-            product['product_name'], constraint))
-        plpy.notice("Price remains unchanged at %s" % product['product_price'])
-    except plpy.SPIError as e:
-        plpy.notice("unknown error, SQLSTATE %s" % e.sqlstate)
-$$ LANGUAGE plpython3u;
-
-CALL reset_product_prices ();
-CALL decrease_price_differentiated_2_prep_statement ('Snack', 1);
