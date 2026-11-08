@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-# PostgreSQL 18.6 + PL/Python3u + pgvector, with psql, jq, curl, vi and glow
+# PostgreSQL 18.6 + PL/Python3u + pgvector, with psql, python3, jq, curl, vi and glow
 FROM postgres:18.6
 
 # Default database and superuser (postgres/postgres)
@@ -13,13 +13,17 @@ ENV PGUSER=postgres \
     PGDATABASE=postgres
 
 ################################################################################
-# PL/Python3u (pinned to the server version), pgvector, jq, curl, vi, glow
+# PL/Python3u (pinned to the server version), pgvector, python3 (+pip, venv),
+# jq, curl, vi, glow
 # psql ships with the base image.
 ################################################################################
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
       "postgresql-plpython3-${PG_MAJOR}=${PG_VERSION}" \
       "postgresql-${PG_MAJOR}-pgvector" \
+      python3 \
+      python3-pip \
+      python3-venv \
       jq \
       curl \
       vim-tiny \
@@ -36,6 +40,6 @@ EXPOSE 5432
 HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
   CMD pg_isready -h localhost -p 5432 -U postgres || exit 1
 
-LABEL description="PostgreSQL 18.6 with PL/Python3u, pgvector, psql, jq, curl, vi and glow" \
+LABEL description="PostgreSQL 18.6 with PL/Python3u, pgvector, psql, python3, jq, curl, vi and glow" \
       postgresql.version="18.6" \
       base.image="postgres:18.6"

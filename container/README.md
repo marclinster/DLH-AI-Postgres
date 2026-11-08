@@ -7,6 +7,7 @@ Includes:
   (enable per database with `CREATE EXTENSION plpython3u;` / `CREATE EXTENSION vector;`)
 - Default database `postgres`, superuser `postgres` / password `postgres`
 - **psql**, preconfigured (`PGUSER`, `PGPASSWORD`, `PGDATABASE`) to log in as `postgres`
+- **python3** (with `pip` and `venv`; the same interpreter PL/Python uses)
 - **jq**
 - **curl**
 - **vi** (`vim-tiny`)
@@ -59,6 +60,7 @@ psql "postgresql://postgres:postgres@localhost:5432/postgres"
 ```bash
 docker exec pg18 psql -c "SELECT extname, extversion FROM pg_extension WHERE extname = 'plpython3u';"
 docker exec pg18 psql -c "DO \$\$ plpy.notice('hello from python') \$\$ LANGUAGE plpython3u;"
+docker exec pg18 python3 --version
 docker exec pg18 jq --version
 docker exec pg18 curl --version
 docker exec pg18 vi --version | head -1
