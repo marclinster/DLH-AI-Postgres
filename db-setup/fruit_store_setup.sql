@@ -53,3 +53,8 @@ CREATE TABLE embedding (
     embedding_vector vector(1024),
     FOREIGN KEY (fruit_id) REFERENCES fruit(id)
 );
+
+CREATE VIEW fruit_with_embedding_vw AS
+SELECT f.id, f.name, f.description, e.embedding_vector
+FROM fruit f
+LEFT JOIN embedding e ON f.id = e.fruit_id;
