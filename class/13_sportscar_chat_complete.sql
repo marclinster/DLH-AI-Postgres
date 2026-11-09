@@ -90,17 +90,16 @@ CREATE OR REPLACE FUNCTION api.mistral_embed (input_text text)
 RETURNS vector
 LANGUAGE plpython3u
 AS $$
-import json, ssl, urllib.request, urllib.error, plpy
-# retrieve the API key from the database configuration
-rv = plpy.execute("SELECT current_setting('api.mistral_api_key', true) AS apikey")
-apikey = rv[0]["apikey"] 
+import os, json, ssl, urllib.request, urllib.error, plpy
+# retrieve the API key from the environment variable
+api_key = os.environ.get('MISTRAL_API_KEY')
 # check if the API key is set, if not, raise an exception to alert the user to set the API key before trying to call the Mistral API
-if not apikey:
+if not api_key:
     raise Exception("Mistral API key not set. Please set the MISTRAL_API_KEY environment variable.")
 # Mistral endpoint for embeddings
 url = "https://api.mistral.ai/v1/embeddings"
 # HTTP headers (auth + JSON)
-headers = {"Authorization": f"Bearer {apikey}", "Content-Type": "application/json"
+headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"
 }
 # JSON payload (model + input text)
 payload = { "model": "mistral-embed", "input": input_text
@@ -181,6 +180,20 @@ TRUNCATE TABLE embedding; -- truncate the embedding table to reset it for testin
 */
 
 
+-- create a DO loop to call the batch embedding function until it returns 0, which means all embeddings have been generated
+DO $$
+DECLARE
+    v_rows INTEGER;
+BEGIN
+    LOOP
+        v_rows := api.batch_sportscar_embedding(5);
+        EXIT WHEN v_rows = 0;
+    END LOOP;
+END;
+$$ LANGUAGE plpgsql;
+
+
+
 CREATE OR REPLACE FUNCTION api.sportscar_embedding_trigger()
 RETURNS TRIGGER
 LANGUAGE plpgsql
@@ -202,6 +215,7 @@ $$;
 
 -- Create the trigger that calls the embedding function after insert or update on the configuration table
 DROP TRIGGER IF EXISTS sportscar_embedding_trigger ON configuration;
+
 CREATE TRIGGER sportscar_embedding_trigger
 AFTER INSERT OR UPDATE ON configuration
 FOR EACH ROW
@@ -210,7 +224,7 @@ EXECUTE FUNCTION api.sportscar_embedding_trigger();
 /* Test the trigger by inserting a new configuration and checking if the embedding is generated automatically. You can run the following queries to test it:
 -- Adding the Golf R model and configuration
 
-DELETE FROM configuration WHERE model_id = 25; -- clean up any existing configurations beyond the initial 66
+DELETE FROM configuration WHERE model_id = 25; -- clean up any existing configurations beyond the initial 69
 INSERT INTO configuration (model_id, color_id) VALUES
     (25, 6), (25, 10), (25, 5);-- Golf R: Blue, Gray, White
 
@@ -281,17 +295,17 @@ CREATE FUNCTION api.sf_narrate_selected_cars (p_question TEXT, p_selected_cars J
 RETURNS TEXT
 LANGUAGE plpython3u
 AS $$
-import json, ssl, urllib.error, urllib.request
-# retrieve the API key from the database configuration
-rv = plpy.execute("SELECT current_setting('api.mistral_api_key', true) AS apikey")
-apikey = rv[0]["apikey"] 
+import os, json, ssl, urllib.error, urllib.request
+# retrieve the API key 
+api_key = os.environ.get('MISTRAL_API_KEY')
 # check if the API key is set, if not, raise an exception to alert the user to set the API key before trying to call the Mistral API
-if not apikey:
-    raise Exception("Mistral API key not set. Please set the MISTRAL_API_KEY environment variable.")
+if not api_key:
+   raise Exception("Mistral API key not set. Please set the MISTRAL_API_KEY environment variable.")
+# check if the API key is set, if not, raise an exception to alert the user to set the API key before trying to call the Mistral API
 # Mistral endpoint for chat completions
 url = "https://api.mistral.ai/v1/chat/completions"
 # HTTP headers (auth + JSON)
-headers = {"Authorization": f"Bearer {apikey}", "Content-Type": "application/json"}
+headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
 # convert Postgres JSONB into Python json
 v_rows = json.dumps(p_selected_cars)
 # create the AI prompt
@@ -307,9 +321,7 @@ v_system_prompt = (
     "- Describe the ordering and what the likeness, calculated as Euclidean distance, means"
     "- Do not invent anything beyond the rows in JSON.\n"
     "- Write in a friendly and engaging tone, as if you were recommending cars to a friend based on their preferences.\n"
-    "- Format the response in in markdown.\n"
-    "- Use two empty spaces at the end of each line to create line breaks in markdown.\n"
-    "\n"
+    "- Format the response in in plain text, no formatting.\n"
 )
 v_user_prompt = f"Question: {p_question}\n\nRows: {v_rows}"
 
