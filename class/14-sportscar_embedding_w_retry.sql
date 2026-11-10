@@ -19,17 +19,16 @@ CREATE OR REPLACE FUNCTION api.mistral_embed (input_text text)
 RETURNS vector
 LANGUAGE plpython3u
 AS $$
-import json, ssl, urllib.request, urllib.error, plpy
-# retrieve the API key from the database configuration
-rv = plpy.execute("SELECT current_setting('api.mistral_api_key', true) AS apikey")
-apikey = rv[0]["apikey"] 
+import os,json, ssl, urllib.request, urllib.error, plpy
+# retrieve the API key from the environment variable
+api_key = os.environ.get('MISTRAL_API_KEY')
 # check if the API key is set, if not, raise an exception to alert the user to set the API key before trying to call the Mistral API
-if not apikey:
+if not api_key:
     raise Exception("Mistral API key not set. Please set the MISTRAL_API_KEY environment variable.")
 # Mistral endpoint for embeddings
 url = "https://api.mistral.ai/v1/embeddings"
 # HTTP headers (auth + JSON)
-headers = {"Authorization": f"Bearer {apikey}", "Content-Type": "application/json"
+headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"
 }
 # JSON payload (model + input text)
 payload = { "model": "mistral-embed", "input": input_text
@@ -59,3 +58,8 @@ for i in range(attempts):
 $$;
 
 SELECT * FROM api.mistral_embed('Test embedding with error handling and retry logic');
+
+-- Try the batch embedding again, now with the new error handling and retry logic in place. This should allow the function to handle any 
+-- API errors gracefully and continue processing the remaining sportscar configurations without failing completely when an error occurs.
+TRUNCATE embedding;
+SELECT api.batch_sportscar_embedding(100);
