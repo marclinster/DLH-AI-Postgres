@@ -61,5 +61,16 @@ CREATE DATABASE sportscar;
 
 \echo 'Successfully set up sportscar database.'
 
+\echo 'Setting up vector_index_demo database...'
+DROP DATABASE IF EXISTS vector_index_demo WITH (FORCE);
+
+CREATE DATABASE vector_index_demo;
+\c vector_index_demo
+
+\i db-setup/vector-index.sql
+
+\echo 'Successfully set up vector_index_demo database.'
+
+
 \c postgres
 \l 
