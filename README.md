@@ -79,7 +79,7 @@ psql "postgresql://postgres:postgres@localhost:5432/commerce"
 | `12-sportscar_chat_framework.sql` | Exercise template: build the sportscar chatbot yourself | `sportscar` |
 | `13_sportscar_chat_complete.sql` | Solution for the sportscar chatbot | `sportscar` |
 | `14-sportscar_embedding_w_retry.sql` | Handling API errors and rate limits with retries | `sportscar` |
-| `14-vector-index.sql` | HNSW and IVFFlat indexes, `ef_search` and `probes` tuning | `vector_index_demo` |
+| `15-vector-index.sql` | HNSW and IVFFlat indexes, `ef_search` and `probes` tuning | `vector_index_demo` |
 
 The Python scripts are also copied into the container's root directory, so you can run them there, for example `docker exec -it pg18 python3 /081-my_embedding_simple.py`.
 
