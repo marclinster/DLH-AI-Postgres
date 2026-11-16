@@ -1,6 +1,6 @@
 # PostgreSQL 18.7 + PL/Python3u + pgvector
 
-A minimal container based on the official `postgres:18.7` image.
+A minimal container based on the official `postgres:18.7-trixie` image (Debian 13), with pgvector pinned to `0.8.7-1.pgdg13+2`.
 
 Includes:
 - **PostgreSQL 18.7** with the `plpython3u` and `vector` (pgvector) extensions installed

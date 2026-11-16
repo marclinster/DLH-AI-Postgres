@@ -1,6 +1,9 @@
 # syntax=docker/dockerfile:1
 # PostgreSQL 18.7 + PL/Python3u + pgvector, with psql, python3, jq, curl, vi and glow
-FROM postgres:18.7
+FROM postgres:18.7-trixie
+
+# Exact pgvector build for PostgreSQL 18.7 (PGDG, Debian 13 / trixie)
+ARG PGVECTOR_VERSION=0.8.7-1.pgdg13+2
 
 # Default database and superuser (postgres/postgres)
 ENV POSTGRES_USER=postgres \
@@ -13,14 +16,14 @@ ENV PGUSER=postgres \
     PGDATABASE=postgres
 
 ################################################################################
-# PL/Python3u (pinned to the server version), pgvector, python3 (+pip, venv),
+# PL/Python3u (pinned to the server version), pgvector (pinned), python3 (+pip, venv),
 # jq, curl, vi, glow
 # psql ships with the base image.
 ################################################################################
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
       "postgresql-plpython3-${PG_MAJOR}=${PG_VERSION}" \
-      "postgresql-${PG_MAJOR}-pgvector" \
+      "postgresql-${PG_MAJOR}-pgvector=${PGVECTOR_VERSION}" \
       python3 \
       python3-pip \
       python3-venv \
@@ -42,4 +45,5 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
 
 LABEL description="PostgreSQL 18.7 with PL/Python3u, pgvector, psql, python3, jq, curl, vi and glow" \
       postgresql.version="18.7" \
-      base.image="postgres:18.7"
+      base.image="postgres:18.7-trixie" \
+      pgvector.version="${PGVECTOR_VERSION}"
