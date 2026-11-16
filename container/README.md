@@ -1,9 +1,9 @@
-# PostgreSQL 18.6 + PL/Python3u + pgvector
+# PostgreSQL 18.7 + PL/Python3u + pgvector
 
-A minimal container based on the official `postgres:18.6` image.
+A minimal container based on the official `postgres:18.7` image.
 
 Includes:
-- **PostgreSQL 18.6** with the `plpython3u` and `vector` (pgvector) extensions installed
+- **PostgreSQL 18.7** with the `plpython3u` and `vector` (pgvector) extensions installed
   (enable per database with `CREATE EXTENSION plpython3u;` / `CREATE EXTENSION vector;`)
 - Default database `postgres`, superuser `postgres` / password `postgres`
 - **psql**, preconfigured (`PGUSER`, `PGPASSWORD`, `PGDATABASE`) to log in as `postgres`
@@ -39,8 +39,8 @@ docker compose up -d --build
 Or without Compose:
 
 ```bash
-docker build -t dlh-ai-postgres:18.6 .
-docker run -d --name pg18 -p 5432:5432 dlh-ai-postgres:18.6
+docker build -t dlh-ai-postgres:18.7 .
+docker run -d --name pg18 -p 5432:5432 dlh-ai-postgres:18.7
 ```
 
 Port 5432 is also used by the container in `docker/`, so run only one of them at a time, or change the host port.
