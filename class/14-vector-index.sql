@@ -82,15 +82,77 @@ SELECT id, cluster_id, embedding <=> (SELECT q FROM index_demo.query_vector WHER
     ORDER BY distance
     LIMIT 10;
 
--- Save the exact top 10 for all 20 query vectors, so we can check the index's answers later.
+/*
+We will run the same 20 searches under different index configurations and keep
+every answer in one table, labeled with the configuration that produced it.
+The procedure save_search runs the top-10 search for each of the 20 query vectors,
+measures how long each search takes, and stores the found items under the given label.
+Running it again with the same label replaces the earlier answers.
+
+search_ms is the time of one search (one query vector). All 10 items found by that
+search carry the same value.
+
+hnsw_m is the "max connections" setting (m) of the HNSW index that was in place
+during the search: how many neighbors each vector may link to per graph layer.
+It is set when the index is built. NULL means there was no HNSW index.
+*/
+
+CREATE TABLE index_demo.search_result (
+    config     TEXT,
+    query_id   INTEGER,
+    id         INTEGER,
+    search_ms  NUMERIC(10,3),
+    hnsw_m     INTEGER,
+    saved_at   TIMESTAMPTZ DEFAULT clock_timestamp(),
+    PRIMARY KEY (config, query_id, id)
+);
+
+CREATE PROCEDURE index_demo.save_search(p_config TEXT)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    qv       RECORD;
+    t_start  TIMESTAMPTZ;
+    found    INTEGER[];
+    elapsed  NUMERIC;
+    v_m      INTEGER;
+BEGIN
+    DELETE FROM index_demo.search_result WHERE config = p_config;
+
+    -- find the HNSW index on item and read its m from the index options (default 16)
+    SELECT COALESCE((SELECT split_part(opt, '=', 2)::INTEGER
+                     FROM unnest(c.reloptions) AS opt
+                     WHERE opt LIKE 'm=%'),
+                    16)
+        INTO v_m
+        FROM pg_index i
+        JOIN pg_class c ON c.oid = i.indexrelid
+        JOIN pg_am am   ON am.oid = c.relam
+        WHERE i.indrelid = 'index_demo.item'::regclass
+          AND am.amname = 'hnsw';
+
+    FOR qv IN SELECT query_id, q FROM index_demo.query_vector ORDER BY query_id LOOP
+        -- clock_timestamp() is the real time now (now() would stay fixed for the whole call)
+        t_start := clock_timestamp();
+
+        found := ARRAY(SELECT id FROM index_demo.item
+                       ORDER BY embedding <=> qv.q
+                       LIMIT 10);
+
+        elapsed := EXTRACT(EPOCH FROM clock_timestamp() - t_start) * 1000;
+
+        INSERT INTO index_demo.search_result (config, query_id, id, search_ms, hnsw_m)
+            SELECT p_config, qv.query_id, f.id, elapsed, v_m
+            FROM unnest(found) AS f(id);
+    END LOOP;
+END;
+$$;
+
+-- Save the exact top 10 for all 20 query vectors: this is the reference for every index.
 -- 20 full scans - this takes a few seconds.
-CREATE TABLE index_demo.exact_result AS
-    SELECT qv.query_id, top10.id
-    FROM index_demo.query_vector qv
-    CROSS JOIN LATERAL (
-        SELECT id FROM index_demo.item
-        ORDER BY embedding <=> qv.q
-        LIMIT 10) top10;
+CALL index_demo.save_search('no index');
+
+SELECT * FROM index_demo.search_result WHERE query_id = 1;
 
 
 --- 2. Add an HNSW index -------------------------------------------------------
@@ -105,6 +167,10 @@ The operator class must match the distance operator used in queries:
     vector_l2_ops      ->  <->  (Euclidean distance)
     vector_ip_ops      ->  <#>  (negative inner product)
 
+Two build settings shape the graph (we spell out the defaults):
+    m                max connections: how many neighbors each vector links to per layer
+    ef_construction  how many candidates are considered when choosing those neighbors
+
 Building the index needs memory, so we give this session more maintenance_work_mem.
 */
 
@@ -112,7 +178,8 @@ SET maintenance_work_mem = '512MB';
 
 CREATE INDEX item_embedding_hnsw_idx
     ON index_demo.item
-    USING hnsw (embedding vector_cosine_ops);
+    USING hnsw (embedding vector_cosine_ops)
+    WITH (m = 16, ef_construction = 64);
 
 -- the index stores the vectors plus the graph - it is bigger than the table!
 SELECT pg_size_pretty(pg_relation_size('index_demo.item_embedding_hnsw_idx')) AS index_size;
@@ -139,24 +206,31 @@ HNSW is an approximate nearest neighbor (ANN) index. It is fast because it does
 not look at every row - which means it can miss some of the true top 10.
 
 "Recall" = how many of the exact top 10 the index found, averaged over our 20 queries.
-This view compares the index's answers to the saved exact answers.
+We save the index's answers next to the exact answers, then compare them.
 */
 
-CREATE VIEW index_demo.recall AS
-    SELECT ROUND(AVG(found), 2) AS avg_found_of_10
-    FROM (
-        SELECT qv.query_id, COUNT(er.id) AS found
-        FROM index_demo.query_vector qv
-        CROSS JOIN LATERAL (
-            SELECT id FROM index_demo.item
-            ORDER BY embedding <=> qv.q
-            LIMIT 10) top10
-        LEFT JOIN index_demo.exact_result er
-            ON er.query_id = qv.query_id AND er.id = top10.id
-        GROUP BY qv.query_id) per_query;
+-- the same 20 searches, now answered by the HNSW index (default hnsw.ef_search = 40)
+CALL index_demo.save_search('hnsw, ef_search = 40');
 
--- with the default setting (hnsw.ef_search = 40) the index finds most, but not always all, of the top 10
-SELECT * FROM index_demo.recall;
+/*
+Compare every saved configuration with the exact answers ('no index'):
+for each item an index returned, look for the same item in the 'no index' answers
+of the same query. COUNT(e.id) counts only the items that were found there.
+'no index' itself always scores 10 - it is the reference.
+avg_search_ms is the average time of one search, so you can weigh accuracy against speed.
+*/
+
+SELECT r.config,
+       MAX(r.hnsw_m) AS hnsw_m,
+       ROUND(COUNT(e.id)::numeric / COUNT(DISTINCT r.query_id), 2) AS avg_found_of_10,
+       ROUND(AVG(r.search_ms), 2) AS avg_search_ms
+    FROM index_demo.search_result r
+    LEFT JOIN index_demo.search_result e
+        ON e.config = 'no index' AND e.query_id = r.query_id AND e.id = r.id
+    GROUP BY r.config
+    ORDER BY MIN(r.saved_at);
+
+-- with the default setting the index finds most, but not always all, of the top 10
 
 
 --- 5. Tuning: hnsw.ef_search ----------------------------------------------------
@@ -174,7 +248,7 @@ SELECT id FROM index_demo.item
     ORDER BY embedding <=> (SELECT q FROM index_demo.query_vector WHERE query_id = 1)
     LIMIT 10;
 
-SELECT * FROM index_demo.recall;    -- noticeably worse: roughly 5-7 of 10 (the data is random, so numbers vary per run)
+CALL index_demo.save_search('hnsw, ef_search = 10');
 
 SET hnsw.ef_search = 200;
 
@@ -183,9 +257,21 @@ SELECT id FROM index_demo.item
     ORDER BY embedding <=> (SELECT q FROM index_demo.query_vector WHERE query_id = 1)
     LIMIT 10;
 
-SELECT * FROM index_demo.recall;    -- (almost) perfect, but each query does more work
+CALL index_demo.save_search('hnsw, ef_search = 200');
 
 RESET hnsw.ef_search;
+
+-- ef_search = 10: noticeably worse, roughly 5-7 of 10 (the data is random, so numbers vary per run)
+-- ef_search = 200: (almost) perfect, but each query does more work
+SELECT r.config,
+       MAX(r.hnsw_m) AS hnsw_m,
+       ROUND(COUNT(e.id)::numeric / COUNT(DISTINCT r.query_id), 2) AS avg_found_of_10,
+       ROUND(AVG(r.search_ms), 2) AS avg_search_ms
+    FROM index_demo.search_result r
+    LEFT JOIN index_demo.search_result e
+        ON e.config = 'no index' AND e.query_id = r.query_id AND e.id = r.id
+    GROUP BY r.config
+    ORDER BY MIN(r.saved_at);
 
 
 --- 6. The operator has to match the index -------------------------------------
@@ -241,14 +327,24 @@ SELECT id, cluster_id, embedding <=> (SELECT q FROM index_demo.query_vector WHER
     LIMIT 10;
 
 /*
-The recall view does not care which index is used - it just runs the query.
+save_search does not care which index is used - it just runs the query.
 With ivfflat.probes = 1 (the default) only ONE list is searched - and still the
 recall is (almost) perfect. Why?
 Our data has 200 natural clusters, but the index has only 50 lists. Each natural
 cluster ends up completely inside one list, so the closest list holds all the true neighbors.
 */
 
-SELECT * FROM index_demo.recall;
+CALL index_demo.save_search('ivfflat, lists = 50, probes = 1');
+
+SELECT r.config,
+       MAX(r.hnsw_m) AS hnsw_m,
+       ROUND(COUNT(e.id)::numeric / COUNT(DISTINCT r.query_id), 2) AS avg_found_of_10,
+       ROUND(AVG(r.search_ms), 2) AS avg_search_ms
+    FROM index_demo.search_result r
+    LEFT JOIN index_demo.search_result e
+        ON e.config = 'no index' AND e.query_id = r.query_id AND e.id = r.id
+    GROUP BY r.config
+    ORDER BY MIN(r.saved_at);
 
 
 --- 8. Tuning: lists and ivfflat.probes ------------------------------------------
@@ -264,8 +360,8 @@ probes = lists searches every list: exact results, but no faster than a Seq Scan
 Let's rebuild the index with 500 lists (about 100 rows per list).
 The build takes longer than with 50 lists: k-means has to compute 500 centers.
 
-Tip: a single search now takes only a millisecond or two, too little to compare reliably.
-The recall query runs 20 searches - compare its time (\timing) across the probes settings.
+Tip: a single search now takes only a millisecond or two, so one EXPLAIN ANALYZE is too
+noisy to compare. avg_search_ms averages 20 searches - compare it across the probes settings.
 */
 
 DROP INDEX index_demo.item_embedding_ivfflat_idx;
@@ -283,7 +379,7 @@ SELECT id FROM index_demo.item
     ORDER BY embedding <=> (SELECT q FROM index_demo.query_vector WHERE query_id = 1)
     LIMIT 10;
 
-SELECT * FROM index_demo.recall;
+CALL index_demo.save_search('ivfflat, lists = 500, probes = 1');
 
 -- probes = 3: searches 3 of 500 lists - recall is back to almost 10 of 10
 SET ivfflat.probes = 3;
@@ -293,7 +389,7 @@ SELECT id FROM index_demo.item
     ORDER BY embedding <=> (SELECT q FROM index_demo.query_vector WHERE query_id = 1)
     LIMIT 10;
 
-SELECT * FROM index_demo.recall;
+CALL index_demo.save_search('ivfflat, lists = 500, probes = 3');
 
 -- probes = 10: perfect recall, but more work per query
 SET ivfflat.probes = 10;
@@ -303,22 +399,28 @@ SELECT id FROM index_demo.item
     ORDER BY embedding <=> (SELECT q FROM index_demo.query_vector WHERE query_id = 1)
     LIMIT 10;
 
-SELECT * FROM index_demo.recall;
+CALL index_demo.save_search('ivfflat, lists = 500, probes = 10');
 
 RESET ivfflat.probes;
 
-/*
-HNSW vs. IVFFlat - summary
+-- all configurations side by side
+SELECT r.config,
+       MAX(r.hnsw_m) AS hnsw_m,
+       ROUND(COUNT(e.id)::numeric / COUNT(DISTINCT r.query_id), 2) AS avg_found_of_10,
+       ROUND(AVG(r.search_ms), 2) AS avg_search_ms
+    FROM index_demo.search_result r
+    LEFT JOIN index_demo.search_result e
+        ON e.config = 'no index' AND e.query_id = r.query_id AND e.id = r.id
+    GROUP BY r.config
+    ORDER BY MIN(r.saved_at);
 
-                      HNSW                               IVFFlat
-Structure             graph of neighbors                 k-means buckets ("lists")
-Build time            slow (~25 s here)                  fast (~2 s with 50 lists, ~12 s with 500)
-Index size            ~ table size or more               ~ table size or more
-Build on empty table  fine - graph grows with inserts    poor - lists come from existing data
-Tuning knobs          hnsw.ef_search (default 40)        lists (at build), ivfflat.probes (default 1)
-After many changes    keeps working                      lists drift from the data - REINDEX
+-- which exact neighbors did each configuration miss for query 1?
+SELECT r.config, e.id AS missed_id
+    FROM index_demo.search_result e
+    CROSS JOIN (SELECT DISTINCT config FROM index_demo.search_result) r
+    WHERE e.config = 'no index' AND e.query_id = 1
+      AND NOT EXISTS (SELECT 1 FROM index_demo.search_result x
+                      WHERE x.config = r.config AND x.query_id = 1 AND x.id = e.id)
+    ORDER BY r.config, e.id;
 
-HNSW is the usual default: good recall with little tuning, and it copes with a growing table.
-IVFFlat is attractive when build time matters and the data is mostly static -
-but the right lists/probes setting depends on the data, so measure recall.
-*/
+

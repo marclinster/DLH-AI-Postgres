@@ -38,6 +38,9 @@ DROP DATABASE IF EXISTS commerce WITH (FORCE);
 CREATE DATABASE commerce;
 \c commerce
 
+CREATE EXTENSION IF NOT EXISTS plpython3u;
+CREATE EXTENSION IF NOT EXISTS vector;
+
 \i db-setup/commerce/category.sql
 \i db-setup/commerce/product.sql
 \i db-setup/commerce/address.sql
