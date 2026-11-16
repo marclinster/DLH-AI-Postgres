@@ -1,135 +1,107 @@
-# eComerce sample database to accompany the book 'PostgreSQL 18 for the developer: transactions, analytics, and AI'
+# AI and Postgres: DLH training class
 
-This repository contains a set of scripts to accomapny the book 'PostgreSQL 18 for the developer: transactions, analytics, and AI' (draft title).
+Scripts, sample databases and a ready-to-run container for the DLH training class on AI with PostgreSQL.
 
-The scripts create a reference architecture for an e-commerce platform using PostgreSQL,  enhanced with an AI database (`aidb`) for advanced search and analytics.
+The class starts with SQL basics (psql, JSONB, CTEs, stored procedures, triggers) and builds up to AI features inside the database:
 
-The architecture includes:
-*   **`ecommerce_reference_data`**: A central publisher for master product information.
-*   **`west_ecommerce_data` & `east_ecommerce_data`**: Regional databases that subscribe to product data and manage local customers and sales.
-*   **`central_analytics`**: A data warehouse that aggregates data from all regional databases.
-*   **`aidb`**: An AI database that subscribes to `central_analytics` and `ecommerce_reference_data` to build a semantic search engine using `pgvector` and OpenAI embeddings.
+- vector similarity search with `pgvector`
+- generating embeddings from PL/Python by calling the Mistral API
+- a retriever / narrator / coordinator chatbot (RAG) written in SQL and PL/Python
+- error handling and retries for rate-limited API calls
+- HNSW and IVFFlat vector indexes, and the speed/accuracy trade-off
 
-The `master_setup.sql` script (see below) creates the 5 different databases (ecommerce_reference_data, east_ecommerce_data, west_ecommerce_data, central_analytics, and aidb) on the same PostgreSQL server.
+## Repository layout
 
-This project showcases a multi-layered logical replication setup, data aggregation, and the integration of vector search for AI-powered applications.
+| Path | Contents |
+| --- | --- |
+| [container/](container/) | Dockerfile and Compose file for PostgreSQL 18.7 with `pgvector`, `plpython3u`, `psql`, `python3`, `jq`, `curl`, `vi` and `glow`. See [container/README.md](container/README.md). |
+| [master_setup.sql](master_setup.sql) | Creates (or re-creates) all class databases. |
+| [db-setup/](db-setup/) | Schema and data scripts called by `master_setup.sql`. |
+| [class/](class/) | The exercises, numbered in the order they are used in class. |
 
-## Key Features Demonstrated
-*   **Multi-Layer Logical Replication**: A sophisticated publisher/subscriber model across four databases using logical replication or the COPY command.
-*   **Data Modeling for Transactions**: A normalized data model to support high-volume transactions.
-*   **Data Modeling for Analytics**: A star schema to support analytics queries with groups, aggregates, window functions and CTEs.
-*   **Text Searching**: Three PostgreSQL text-serach techniques: LIKE, tsvector, and trigrams.
-*   **AI-Powered Semantic Search**: Using `pgvector` and OpenAI embeddings to find products based on natural language queries.
-*   **Retrieval-Augmented Generation (RAG)**: A function that uses database content to provide context to an LLM for answering questions.
-*   **Advanced Data Types**: `DATERANGE` for price validity, `JSONB` for product attributes, and `vector` for embeddings.
-*   **Exclusion Constraints**: Using `GIST` to prevent overlapping price validity periods.
-*   **PostgreSQL extensions**: 
-    * `plpgsql` to develop stored procedures and functions in PostgreSQL native procedural language (used throughout the whole book).    
-    * `btree_gist` to combine B-tree and GiST indexes to identify overlaps in ranges (part of the basic data model).
-    * `pgaudit` to get collect audit information about DML and DDL commands (Chapters 4 and 8).
-    * `pg_background` for background processing using independant processes (Chapter 6).
-    * `plpgsql_check` to show the value of a plpgsql linter (Chapter 6)
-    * `plpython3u`to devlop stored procedures in Python and to connect to LLMs (Chapters 6 and 16-19).
-    * `pg_squeeze` to reorganize tables and remove unused space (Chapter 8).
-    * `pg_stat_statements` to collect performance information (Chapter 8).
-    * `pg_trgm` for fuzzy text search and string matching (Chapter 14).
-    * `unaccent` to remove diacritics, umlauts, etc. from text files before searching (Chapter 14).
-    * `vector` to run approximate nearest neighbor AI calculations in PostgreSQL (Chapters 16-19).
+## Quick start
 
-
-*   **`psql` Scripting**: Comprehensive use of `psql` meta-commands and variables for fully automated setup and teardown.
-
-## File Structure
-The project is primarily organized within the `psql_scripts/` directory:
-*   `master_setup.sql`: The main script to create all databases, schemas, and set up
-     the entire replication topology. The script checks for the prerequisites and will abort if they are not met.
-*   `master_teardown.sql`: The main script to remove all replication slots, 
-     subscriptions, and drop all databases.
-*   `database_definitions/`: Contains the individual SQL files to define the schema
-    for each database (`ecommerce_reference_data`, `west_ecommerce_data`, `east_ecommerce_data`, `central_analytics`, and `aidb`).
-*   `data_sets/`: Contains scripts to populate the databases with sample data.
-*   `replication/`: Contains scripts that define the replication relationships between the databases (`product_replication_setup.sql` and `customer_sales_replication_setup.sql`).
-*   `product_pictures/`: Contains product images and prompts used for generating embeddings.
-* `Example for each chapter of the book`: The directory /psql_scripts/sample_scripts contains sample scripts to illustrate the concepts explained in the book.
-
-## Prerequisites
-*   PostgreSQL 18 or higher installed, with 
-    * wal_level = logical
-    * logging_collector=on 
-    * max_logical_replication_workers>=10 
-    * log_statement=ddl
-*    The extensions listed above need to be installed
-*    Superuser access to the PostgreSQL instance.
-*   `psql` command-line client.
-*   An OpenAI API key for generating embeddings and using the RAG function.
-
-## Important note to pre-release testers
-
-> The pre-release version requires that the superuser is called `postgres' and uses the password 'postgres'. This will be changed prior to the book release
-
-
----
-## Supported Environments
-The scripts have been tested with Docker Desktop 4.53.
-
-The file docker-compose.yml can be used to generate a Docker container that includes all the required extensions.
-
-### 1. Create the Docker image
-Run `./clean_build_pg18.sh` to create a Docker image (in folder /docker). This will create an image called `vibhorkumar123/pg18-vector:v2.4`
-
-### 2. Create the Docker container
-
-Run `docker compose up -d` to create and start the container. The container will be called `pg18book`.
-This container is configured to support the examples in the book, including all the necessary extensions, and the one-time server configurations for logical replication, `wal_level`, and `max_replication_workers`.
-
-
----
-
-## Instructions (using `psql`)
-This is the recommended method for a fully automated setup.
-
-### 1. One-Time Server Configuration
-* Your PostgreSQL server must be configured for logical replication. 
-* The `wal_level` must be set to logical
-* The setting for `max_logical_replication_workers` must be > 10.
-
-### 2. Set Your OpenAI API Key
-The examples for `aidb` (chapter 16 and beyond) require an OpenAI API key to generate vector embeddings. Connect to `psql` and set the key in the database configuration. **This key is stored as a server-level parameter and will persist until reset.**
+### 1. Start the database container
 
 ```bash
-# Connect to any database as a superuser
-psql -U your_superuser -d postgres
-
--- Set the API key (replace with your actual key)
-ALTER SYSTEM SET api.openai_api_key = 'your_openai_api_key_here';
-
--- Reload the configuration to apply the change
-SELECT pg_reload_conf();
+cd container
+cp secrets.env.example secrets.env   # add your Mistral API key to secrets.env
+docker compose up -d --build
 ```
 
-### 3. Create Databases and Set Up Replication
-The master setup script handles everything: creating databases, defining schemas, populating data, and configuring all replication publications and subscriptions in the correct order.
+This starts a container called `pg18` on port 5432, with superuser `postgres` / password `postgres`. The credentials are for local training use only.
+
+`secrets.env` is git-ignored. Its `MISTRAL_API_KEY` is passed into the container, where it is available to `curl` and to PL/Python functions (`os.environ['MISTRAL_API_KEY']`). If you add or change the key later, run `docker compose up -d` again to recreate the container.
+
+### 2. Create the class databases
+
+Run the setup script from the repository root, because it includes the `db-setup/` scripts by relative path:
 
 ```bash
-# Run the master setup script from the root of the repository
-psql -U your_superuser -f psql_scripts/master_setup.sql
+psql "postgresql://postgres:postgres@localhost:5432/postgres" -f master_setup.sql
 ```
 
-Alternatively, run the `master_setup.sql` script from psql from the directory `plsql_scripts`
-```bash
-# Run the master setup script from the psql_scripts directory of the repository
-\i master_setup.sql
-```
-After the script finishes, all databases will be created, and data will be flowing from the reference and regional databases into `central_analytics` and into `aidb`.
+The script drops and re-creates each database, so you can run it again at any time to reset the class data. It creates:
 
-The databases will be populated with 5,000 customers and approximately 23,000 sales transaction lines.
+| Database | Used for |
+| --- | --- |
+| `simple_fruit_store` | A first look at vectors: fruits with 3-dimensional hand-made feature vectors |
+| `fruit_store` | Generating real embeddings with the Mistral API, and the fruit store chatbot |
+| `commerce` | Customers, products, categories, addresses and purchases for the SQL exercises |
+| `sportscar` | Brands, models, colors and configurations for the sportscar chatbot exercise |
+| `vector_index_demo` | 50,000 synthetic 1024-dimensional vectors for the index exercise (no API calls needed) |
 
-In the final step of the setup, the script prints out a report showing the counts for customers, products, and sales orders in the different databases.
-
-### 3. Cleanup
-To completely remove the databases and all replication artifacts, run the master teardown script.
+### 3. Connect
 
 ```bash
-# Run the master teardown script
-psql -U your_superuser -f psql_scripts/master_teardown.sql
+# Inside the container (no arguments needed)
+docker exec -it pg18 psql
+
+# From the host
+psql "postgresql://postgres:postgres@localhost:5432/commerce"
 ```
+
+## Exercises
+
+| File | Topic | Database |
+| --- | --- | --- |
+| `01-simple-excercide.sql` | Getting comfortable with psql and basic SQL | creates `testdb` |
+| `02-jsonb.sql` | Querying JSONB (`->`, `->>`, `#>>`, JSON path) | `commerce` |
+| `03-cte.sql` | Common table expressions | `commerce` |
+| `04-sproc.sql` | Stored procedures and functions in PL/pgSQL and PL/Python | `commerce` |
+| `05-trigger.sql` | Row- and statement-level triggers | `commerce` |
+| `06-simple_fruit_store.sql` | Vector distance operators (`<->`, `<=>`, `<#>`, `<+>`) | `simple_fruit_store` |
+| `07-curl-examples.txt` | Calling the Mistral embeddings API with `curl` | container shell |
+| `081`–`084-my_embedding_*.py` | Calling the embeddings API from Python, with and without error handling | container shell |
+| `09-plpython-embedding-generation.sql` | Generating embeddings from PL/Python | `fruit_store` |
+| `10-scale-up-embedding-generation.sql` | Generating embeddings in batches | `fruit_store` |
+| `11-adding-narration.sql` | Retriever and narrator: a simple RAG chatbot | `fruit_store` |
+| `12-sportscar_chat_framework.sql` | Exercise template: build the sportscar chatbot yourself | `sportscar` |
+| `13_sportscar_chat_complete.sql` | Solution for the sportscar chatbot | `sportscar` |
+| `14-sportscar_embedding_w_retry.sql` | Handling API errors and rate limits with retries | `sportscar` |
+| `14-vector-index.sql` | HNSW and IVFFlat indexes, `ef_search` and `probes` tuning | `vector_index_demo` |
+
+The Python scripts are also copied into the container's root directory, so you can run them there, for example `docker exec -it pg18 python3 /081-my_embedding_simple.py`.
+
+For the index exercise, turn on timing in psql (`\timing on`) to compare query times with and without an index.
+
+## Requirements
+
+- Docker (Docker Desktop or another engine with Compose)
+- `psql` on the host to run `master_setup.sql`, or copy the repository into the container and run it there
+- A Mistral API key for the embedding and chatbot exercises (files `07` to `14-sportscar_embedding_w_retry.sql`)
+
+If you use your own PostgreSQL server instead of the container, it needs PostgreSQL 18 with the `vector` and `plpython3u` extensions installed, and `MISTRAL_API_KEY` set in the server's environment.
+
+## Reset
+
+To re-create the class databases, run `master_setup.sql` again. To remove the container and its data volume completely:
+
+```bash
+cd container
+docker compose down -v
+```
+
+## License
+
+[CC0 1.0 Universal](LICENSE)
