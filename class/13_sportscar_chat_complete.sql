@@ -326,7 +326,7 @@ v_system_prompt = (
 v_user_prompt = f"Question: {p_question}\n\nRows: {v_rows}"
 
 # JSON payload (model + input text)
-payload = { "model": "mistral-large-latest", 
+payload = { "model": "mistral-large-2512", 
             "messages": [
                 {"role": "system", "content": v_system_prompt},
                 {"role": "user", "content": v_user_prompt}]

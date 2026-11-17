@@ -42,7 +42,7 @@ curl -X POST "https://api.mistral.ai/v1/chat/completions" \
      -H 'Accept: application/json' \
      -H "Authorization: Bearer $MISTRAL_API_KEY" \
      -d '{
-    "model": "mistral-large-latest",
+    "model": "mistral-large-2512",
     "messages": [
      {
         "role": "user",
@@ -57,7 +57,7 @@ curl -X POST "https://api.mistral.ai/v1/chat/completions" \
      -H 'Accept: application/json' \
      -H "Authorization: Bearer $MISTRAL_API_KEY" \
      -d '{
-    "model": "mistral-large-latest",
+    "model": "mistral-large-2512",
     "messages": [
      {
         "role": "user",
@@ -74,7 +74,7 @@ curl -X POST "https://api.mistral.ai/v1/chat/completions" \
      -H 'Accept: application/json' \
      -H "Authorization: Bearer $MISTRAL_API_KEY" \
      -d '{
-    "model": "mistral-large-latest",
+    "model": "mistral-large-2512",
     "messages": [
      {
         "role": "user",

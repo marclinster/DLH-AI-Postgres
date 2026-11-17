@@ -22,25 +22,24 @@ DECLARE
     v_embedding_vector vector;
     v_embedding_ctr INTEGER DEFAULT 0;
 BEGIN    
-
--- select p_batch_size rows that have no embedding
--- iterate through those rows, generate embeddings, and insert them into the embedding table.
-FOR v_record IN 
-    SELECT id, name, description FROM fruit f 
-        -- left join finds all fruits that do not have an embedding yet
-        -- either because they have no embedding record yet, or the embedding_vector is NULL
-        LEFT JOIN embedding e ON f.id = e.fruit_id
-        WHERE e.embedding_vector IS NULL 
-        LIMIT p_batch_size
-    LOOP
-        v_embedding_vector := api.fruit_embedding(v_record.id);
-        INSERT INTO embedding (embedding_vector, fruit_id)
-            VALUES (v_embedding_vector, v_record.id)
-        ON CONFLICT (fruit_id) DO 
-            UPDATE SET embedding_vector = EXCLUDED.embedding_vector;
-        v_embedding_ctr := v_embedding_ctr + 1;
-    END LOOP;
-RETURN v_embedding_ctr;
+    -- select p_batch_size rows that have no embedding
+    -- iterate through those rows, generate embeddings, and insert them into the embedding table.
+    FOR v_record IN 
+        SELECT id, name, description FROM fruit f 
+            -- left join finds all fruits that do not have an embedding yet
+            -- either because they have no embedding record yet, or the embedding_vector is NULL
+            LEFT JOIN embedding e ON f.id = e.fruit_id
+            WHERE e.embedding_vector IS NULL 
+            LIMIT p_batch_size
+        LOOP
+            v_embedding_vector := api.fruit_embedding(v_record.id);
+            INSERT INTO embedding (embedding_vector, fruit_id)
+                VALUES (v_embedding_vector, v_record.id)
+            ON CONFLICT (fruit_id) DO 
+                UPDATE SET embedding_vector = EXCLUDED.embedding_vector;
+            v_embedding_ctr := v_embedding_ctr + 1;
+        END LOOP;
+    RETURN v_embedding_ctr;
 END;
 $$ LANGUAGE PLPGSQL;
 
