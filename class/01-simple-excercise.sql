@@ -7,8 +7,8 @@ Simple excercide to become comfortable with psql and basic SQL commands.
 
 
 
-# Do this in psql
-# Connect to psql
+-- Do this in psql
+-- Connect to psql
 
 
 \c postgres

@@ -317,7 +317,7 @@ v_system_prompt = (
     "- List items with their name and description\n"
     "- If possible, group items by brand and country of origin\n"
     "- Comment on the likeness of the results to the question, based on the likeness score, and mention the most similar one\n"
-    "- Describe the ordering and what the likeness, calculated as Euclidean distance, means"
+    "- Describe the ordering and what the likeness, calculated as cosine distance, means in terms of similarity to the user question.\n"
     "- Do not invent anything beyond the rows in JSON.\n"
     "- Write in a friendly and engaging tone, as if you were recommending cars to a friend based on their preferences.\n"
     "- Format the response in in plain text, no formatting.\n"

@@ -4,9 +4,9 @@
 /***************************************************************************************************
 
 Database setup script for the DLH Advanced SQL course. This file provides
-an overview of stored procedures in PLPGSQL and PL/Python.dlh_adv_sql
+an overview of stored procedures in PLPGSQL and PL/Python.
 
-The examples use the database dlh_adv_sql, which is created by the setup.sql script.
+The examples use the database commerce, which is created by the setup.sql script.
 
 2026 Copyright: Marc Linster
 Last updated Oct 6, 2026
@@ -292,7 +292,7 @@ FOR v_product IN
             SET price = price + p_increase
             WHERE product_nbr = v_product.product_nbr
             RETURNING OLD.price, NEW.price INTO v_old_price, v_new_price;
-            RAISE NOTICE 'Increased price for %s from %s to %s because it is a member of %s category',
+            RAISE NOTICE 'Increased price for % from %s to % because it is a member of % category',
             v_product.product_name, v_old_price, v_new_price, v_product.category_name;
     END LOOP;
 END;
@@ -633,7 +633,7 @@ for customer in customers:
 plpy.notice("Inserted %d milk purchases" % count)
 $$ LANGUAGE plpython3u;
 
-CALL add_milk_purchases_dudelange();
+CALL add_milk_purchases_dudelange_prep_statements();
 
 -- check the result
 SELECT COUNT(*), MIN(p.date), MAX(p.date), COUNT(DISTINCT p.customer_id)

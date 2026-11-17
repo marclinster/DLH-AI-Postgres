@@ -7,10 +7,6 @@ so no LLM calls are needed.
 */
 
 --- Setup -------------------------------------------------------------------
-DROP DATABASE IF EXISTS vector_index_demo WITH (FORCE);
-
-CREATE DATABASE vector_index_demo;
-\c vector_index_demo
 
 CREATE EXTENSION IF NOT EXISTS vector;
 

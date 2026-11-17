@@ -20,7 +20,7 @@ BEGIN
    -- convert the resultset into JSONB
     SELECT JSONB_AGG(matching_fruit) INTO v_similar_fruit FROM (
         -- find the top matching fruit
-        SELECT name, embedding_vector<=> q.target_embedding as likeness
+        SELECT name, description, embedding_vector<=> q.target_embedding as likeness
             FROM fruit_with_embedding_vw
             JOIN q ON TRUE
             ORDER BY likeness ASC

@@ -150,4 +150,4 @@ SELECT id, first_name, last_name,
        jsonb_pretty(phone_numbers) AS phone_numbers
 FROM customer
 WHERE phone_numbers @> '{"work": [{"country_code": "(+49)"}]}'
-   OR phone_numbers @> '{"home": [{"country_code": "(+49)"}]}
+   OR phone_numbers @> '{"private": [{"country_code": "(+49)"}]}';

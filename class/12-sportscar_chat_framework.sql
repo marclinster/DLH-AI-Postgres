@@ -7,7 +7,7 @@ questions about sports cars based on the data in the database and the embeddings
 
 Instructions:
 1) Set this up in the schema called API inside the sportscars database, which is created in the master_setup.sql script.
-2) Use the template below and fill it in by looking at the code in the fruit_store_chat.sql script, which contains similar functionality but for a fruit store example.
+2) Use the template below and fill it in by looking at the code in the fruit_store examples, which contains similar functionality but for a fruit store example.
 3) The code will include:
    a) A function to generate the complete description text for a given car configuration, which will combine the brand name, model name, country of origin, price, description, and color into a single text string that can be used for embedding generation.
    b) A function to call the Mistral API and generate the embedding vector based on a given text input.
@@ -30,7 +30,7 @@ CREATE SCHEMA IF NOT EXISTS api;
 
 CREATE OR REPLACE FUNCTION api.generate_embedding_text(id INTEGER
 ) RETURNS TEXT AS $$
--- fill this in by looking at the fruit_store_chat.sql example, which contains a similar function for generating the description text for a given fruit ID. This function should generate a text description for a given car configuration ID by combining the relevant data from the vw_sportscars view, such as brand name, model name, country of origin, price, model description, and color, into a single text string that can be used for embedding generation.
+-- fill this in by looking at the fruit_store example, which contains a similar function for generating the description text for a given fruit ID. This function should generate a text description for a given car configuration ID by combining the relevant data from the vw_sportscars view, such as brand name, model name, country of origin, price, model description, and color, into a single text string that can be used for embedding generation.
 $$ LANGUAGE plpgsql;
 
 /*
@@ -44,7 +44,7 @@ CREATE OR REPLACE FUNCTION api.mistral_embed (input_text text)
 RETURNS vector
 LANGUAGE plpython3u
 AS $$
--- fill this in by looking at the fruit_store_chat.sql example, which contains a similar function for calling the Mistral API to generate embeddings based on a text input.
+-- fill this in by looking at the fruit_store example, which contains a similar function for calling the Mistral API to generate embeddings based on a text input.
 END;
 $$;
 
@@ -60,7 +60,7 @@ CREATE OR REPLACE FUNCTION api.batch_sportscar_embedding (p_batch_size INTEGER D
 RETURNS INTEGER
 LANGUAGE plpgsql
 AS $$
--- fill this in by looking at the fruit_store_chat.sql example, which contains a similar function for generating embeddings in batches. This function should generate embedding vectors for all car configurations in the database by iterating over all configuration IDs that do not yet have an embedding, calling the embedding generation function for each, and storing the results in the embedding table. The function should return the number of embeddings that were generated in each batch, and return 0 when all embeddings have been generated.
+-- fill this in by looking at the fruit_store example, which contains a similar function for generating embeddings in batches. This function should generate embedding vectors for all car configurations in the database by iterating over all configuration IDs that do not yet have an embedding, calling the embedding generation function for each, and storing the results in the embedding table. The function should return the number of embeddings that were generated in each batch, and return 0 when all embeddings have been generated.
 END;
 $$;
 
@@ -80,7 +80,7 @@ AS $$
 DECLARE 
     v_embedding_vector vector;
 BEGIN
--- fill this in by looking at the fruit_store_chat.sql example, which contains a similar trigger function for automatically 
+-- fill this in by looking at the fruit_store example, which contains a similar trigger function for automatically 
 -- generating embeddings when new fruit data is inserted or updated. This trigger function should automatically generate the embedding vector for a car configuration whenever a new configuration is inserted or an existing one is updated, by calling the appropriate embedding generation function with the configuration ID and storing the result in the embedding table.
 END;
 $$;
@@ -144,7 +144,7 @@ DECLARE
     v_similar_cars JSONB;
 BEGIN
     WITH q AS
--- fill this in by looking at the fruit_store_chat.sql example, which contains a similar function for
+-- fill this in by looking at the fruit_store example, which contains a similar function for
 -- retrieving similar fruits based on a target text query. This function should take a user query as input, generate an 
 -- embedding for that query using the Mistral API, and then perform a similarity search against the embeddings of the car 
 -- configurations in the database to find the top N most similar cars. The results should be returned in JSONB format, including relevant details about each car and the similarity score.
@@ -165,7 +165,7 @@ RETURNS TEXT
 LANGUAGE plpython3u
 AS $$
 import json, ssl, urllib.error, urllib.request
--- fill this in by looking at the fruit_store_chat.sql example, which contains a similar function for generating a 
+-- fill this in by looking at the fruit_store example, which contains a similar function for generating a 
 -- narration based on the selected fruits. This function should take the user question and the JSONB output from the retriever function as input, and then generate a detailed text description for each of the similar cars using the generate_embedding_text function to get the relevant details about each car. The function should then combine these descriptions into a single response that can be returned to the user.
 $$;
 
@@ -185,7 +185,7 @@ CREATE FUNCTION api.sf_coordinator(p_user_question TEXT)
 RETURNS TEXT
 LANGUAGE plpgsql
 AS $$
--- fill this in by looking at the fruit_store_chat.sql example, which contains a similar function for coordinating the retriever and 
+-- fill this in by looking at the fruit_store example, which contains a similar function for coordinating the retriever and 
 -- narrator functions. This function should take the user question as input, call the retriever function to get the similar cars, and then call the narrator function to generate a detailed description for the user based on the retrieved cars. The final response should be returned as text.
 $$;
 

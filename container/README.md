@@ -43,8 +43,6 @@ docker build -t dlh-ai-postgres:18.7 .
 docker run -d --name pg18 -p 5432:5432 dlh-ai-postgres:18.7
 ```
 
-Port 5432 is also used by the container in `docker/`, so run only one of them at a time, or change the host port.
-
 ## Connect
 
 ```bash

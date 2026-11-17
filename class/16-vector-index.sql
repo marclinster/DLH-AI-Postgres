@@ -1,6 +1,6 @@
 /*
 The effect of an index on an embedding column
-This example uses the database vector-index-demo, which is created by class/14-vector-index.sql. It shows how
+This example uses the database vector-index-demo, which is created by db-setup/vector-index.sql. It shows how
 - a similarity search without an index reads every row (Seq Scan)
 - an HNSW index (Hierarchical Navigable Small World) speeds up the search (Index Scan)
 - the trade-off: HNSW is approximate, so it can miss some of the true nearest neighbors

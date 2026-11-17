@@ -44,7 +44,10 @@ END;
 $$ LANGUAGE PLPGSQL;
 
 
-
+UPDATE embedding e
+    SET embedding_vector = NULL
+    FROM fruit f
+    WHERE e.fruit_id = f.id AND f.name = 'Apple';
 
 
 /* 

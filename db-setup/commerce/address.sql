@@ -25,5 +25,3 @@ CREATE TABLE address (
     lon_wgs84 double precision,
     commune text COLLATE pg_catalog."default"
 );
-
-CREATE INDEX address_geom_idx ON address USING GIST (geom);

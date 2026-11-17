@@ -6,15 +6,15 @@ This should be run inside the database fruit_store, which is created in the mast
 The master_setup.sql script also sets the MISTRAL_API_KEY environment variable, 
 which is required for generating the embeddings using the Mistral API.
 
-Embedding generation is not done in this script, but rather in the fruit_store_chat.sql script,
- which contains the necessary functions and triggers to generate and store the embeddings 
- whenever new fruit data is inserted or updated.
+Embedding generation is not done in this script, but rather in the class scripts,
+which contains the necessary functions and triggers to generate and store the embeddings 
+whenever new fruit data is inserted or updated.
 
- This is part of the DLH Training Class for AI and Postgres, and is meant for educational purposes to 
- demonstrate how to set up a database schema for vector embeddings and how to integrate with an 
- external API for generating those embeddings.
+This is part of the DLH Training Class for AI and Postgres, and is meant for educational purposes to 
+ emonstrate how to set up a database schema for vector embeddings and how to integrate with an 
+external API for generating those embeddings.
 
- Last Update: 2026-04-30
+Last Update: 2026-04-30
 */
 
 

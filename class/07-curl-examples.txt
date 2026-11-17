@@ -86,8 +86,6 @@ curl -X POST "https://api.mistral.ai/v1/chat/completions" \
 
   jq -r '.choices[0].message.content' chat-output1a.json | glow -
 
-You are an instructor at the DLH. Explain curl to a novice developer
-
 
 curl -X POST "https://api.mistral.ai/v1/chat/completions" \
      -H 'Content-Type: application/json' \
@@ -96,6 +94,7 @@ curl -X POST "https://api.mistral.ai/v1/chat/completions" \
      -d @curl-haiku.txt\
   -o chat-output2.json
 
+ jq -r '.choices[0].message.content' chat-output2.json | glow -
 
 curl -X POST "https://api.mistral.ai/v1/chat/completions" \
      -H 'Content-Type: application/json' \
@@ -104,11 +103,20 @@ curl -X POST "https://api.mistral.ai/v1/chat/completions" \
      -d @llm-instructions.txt\
   -o chat-output3.json
 
+ jq -r '.choices[0].message.content' chat-output3.json | glow -
 
+jq '.' chat-output3.json
 
-jq '.' chat-output.json
+jq '.choices[0].message.content' chat-output3.json
+jq '.usage.prompt_tokens' chat-output3.json
+jq '.usage.completion_tokens' chat-output3.json
+jq '.usage.total_tokens' chat-output3.json
 
-jq '.choices[0].message.content' chat-output.json
-jq '.usage.prompt_tokens' chat-output.json
-jq '.usage.completion_tokens' chat-output.json
-jq '.usage.total_tokens' chat-output.json
+curl -X POST "https://api.mistral.ai/v1/chat/completions" \
+     -H 'Content-Type: application/json' \
+     -H 'Accept: application/json' \
+     -H "Authorization: Bearer $MISTRAL_API_KEY" \
+     -d @llm-instructions.txt\
+  -o chat-output4.json
+
+ jq -r '.choices[0].message.content' chat-output4.json | glow -

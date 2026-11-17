@@ -5,13 +5,14 @@ Master database setup script. This script will create the following databases:
 - fruit_store
 - commerce
 - sportscar
+- vector_index_demo
 
 It requires Postgres 18, pgvector extension, and plpython3u extension to be installed.
 
 */
 
 \c postgres
-\set error_stop on
+\set ON_ERROR_STOP on
 
 \echo 'Setting up databases...'
 
