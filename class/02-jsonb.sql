@@ -120,16 +120,21 @@ WHERE phone_numbers @> '{"work": [{"country_code": "(+49)"}]}';
 SELECT phone_numbers @> '{"work":[{"country_code":"(+1)"}]}' FROM customer WHERE id = 1;
 
 
--- Add a new phone number to customer 1
--- home - make it a sample Luxembourg landline number (6 digits)
+-- Add a new private number to customer 1
+-- private - make it a sample Luxembourg landline number (6 digits)
+
+SELECT jsonb_pretty(phone_numbers) AS phone_numbers
+FROM customer
+WHERE id = 1;
+
 UPDATE customer
 SET phone_numbers = jsonb_set(
         phone_numbers,
-        '{home}',
-        (phone_numbers->'home') || jsonb_build_object('country_code', '(+352)', 'number', '123.456'))
+        '{private}',
+        (phone_numbers->'private') || jsonb_build_object('country_code', '(+352)', 'number', '123.456'))
 WHERE id = 1;
 
--- Add a new phone number to customer 1
+-- Add a new private number to customer 1
 -- weekend (a whole new group at the level of work and home) 
 -- make it a sample Luxembourg mobile number 
 UPDATE customer
