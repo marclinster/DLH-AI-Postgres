@@ -301,7 +301,6 @@ api_key = os.environ.get('MISTRAL_API_KEY')
 # check if the API key is set, if not, raise an exception to alert the user to set the API key before trying to call the Mistral API
 if not api_key:
    raise Exception("Mistral API key not set. Please set the MISTRAL_API_KEY environment variable.")
-# check if the API key is set, if not, raise an exception to alert the user to set the API key before trying to call the Mistral API
 # Mistral endpoint for chat completions
 url = "https://api.mistral.ai/v1/chat/completions"
 # HTTP headers (auth + JSON)
