@@ -51,6 +51,7 @@ The script drops and re-creates each database, so you can run it again at any ti
 | `sportscar` | Brands, models, colors and configurations for the sportscar chatbot exercise |
 | `vector_index_demo` | 50,000 synthetic 1024-dimensional vectors for the index exercise (no API calls needed) |
 
+
 ### 3. Connect
 
 ```bash
@@ -60,6 +61,11 @@ docker exec -it pg18 psql
 # From the host
 psql "postgresql://postgres:postgres@localhost:5432/commerce"
 ```
+## Versions
+The master_setup.sql script checks
+* The API key works
+* mistral-embed is available and returns a 1024 vector. 
+* mistral-large-2512 (used for chat comletion) is available
 
 ## Exercises
 
