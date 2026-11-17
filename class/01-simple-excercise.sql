@@ -1,14 +1,17 @@
-/* 
+/***************************************************************************************************
 
-Simple excercide to become comfortable with psql and basic SQL commands.
+Part of the DLH Training Class for AI and Postgres, and is meant for educational purposes to 
+demonstrate how to become comfortable with psql and basic SQL commands.
 
-*/
+Simple exercise to become comfortable with psql and basic SQL commands.
+
+Copyright 2026: Marc Linster
+Last Update: 2026-11-15
+
+***************************************************************************************************/
 
 
 
-
--- Do this in psql
--- Connect to psql
 
 
 \c postgres

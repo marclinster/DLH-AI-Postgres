@@ -1,12 +1,14 @@
 /***************************************************************************************************
 
-Database setup script for the DLH Advanced SQL course. This file provides
-an overview of triggers (row and statement level) in SQL.
 
-2026 Copyright: Marc Linster
-Last updated Oct 6, 2026
+Part of the DLH Training Class for AI and Postgres, and is meant for educational purposes to 
+demonstrate how to become comfortable with triggers in Postgres.
 
-****************************************************************************************************/
+Copyright 2026: Marc Linster
+Last Update: 2026-11-15
+
+***************************************************************************************************/
+
 
 -- a simple trigger to demonstrate the concept and illustrate the trigger-specific variables
 

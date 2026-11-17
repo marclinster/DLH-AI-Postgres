@@ -1,4 +1,7 @@
-/* 
+/***************************************************************************************************
+
+Part of the DLH Training Class for AI and Postgres, and is meant for educational purposes to 
+demonstrate how to use PL/Python to call the Mistral API and generate embeddings for a simple fruit store chatbot example.
 
 This file contains the SQL code to set up the functions and triggers for the fruit store chat bot example, 
 which demonstrates how to use the Mistral API to generate embeddings and create a simple retriever + narrator chatbot in Postgres.
@@ -11,7 +14,10 @@ Building blocks:
 - api.fruit_embedding: function that combines the previous two functions to generate an embedding for a given fruit ID, 
   by first generating the text and then calling the embedding function  
 
-*/
+Copyright 2026: Marc Linster
+Last Update: 2026-11-17
+
+***************************************************************************************************/
 
 
 

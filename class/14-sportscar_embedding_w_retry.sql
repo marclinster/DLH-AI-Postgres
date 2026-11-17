@@ -1,9 +1,16 @@
-/*
-This will illustrate how to enhance the mebedding fuunction to handle errors and retry the mebedding generation
+/***************************************************************************************************
 
+Part of the DLH Training Class for AI and Postgres, and is meant for educational purposes to 
+demonstrate how to integrate with an external API for generating those embeddings.
 
+Thiis version of the embedding generation function includes error handling and retry logic, so that 
+it can handle API errors gracefully and continue processing the remaining sportscar configurations 
+without failing completely when an error occurs.
 
-*/
+Copyright 2026: Marc Linster
+Last Update: 2026-11-17
+
+***************************************************************************************************/
 
 
 -- This will likely cause a MISTRAL API error
@@ -12,8 +19,23 @@ This will illustrate how to enhance the mebedding fuunction to handle errors and
 TRUNCATE embedding;
 SELECT api.batch_sportscar_embedding(100);
 
+/*
+We will rewrite the embedding generation function to include error handling and retry logic, so that it 
+can handle API errors gracefully and continue processing the remaining sportscar configurations without 
+failing completely when an error occurs. This only tests for rate limit or service unavailable errors, 
+and will retry the request with exponential backoff.
+Other errors, network errors, or timeouts are not handled, and will cause the function to fail. 
 
--- We will rewrite the embedding generation function to include error handling and retry logic, so that it can handle API errors gracefully and continue processing the remaining sportscar configurations without failing completely when an error occurs.
+Code	Meaning
+408	Request Timeout (the server gave up waiting for your request)
+500	Internal Server Error (often temporary at API providers)
+502	Bad Gateway (proxy or load balancer couldn't reach the backend)
+504	Gateway Timeout (the backend didn't answer in time)
+520–524	Cloudflare-specific codes, e.g. 522 connection timed out, 524 timeout. These matter if the API sits behind Cloudflare, as Mistral's does.
+
+*/
+
+-- This is a simple example of how to implement error handling and retry logic in a PL/Python function that calls an external API.
 
 CREATE OR REPLACE FUNCTION api.mistral_embed (input_text text)
 RETURNS vector

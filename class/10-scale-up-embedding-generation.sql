@@ -1,4 +1,17 @@
---- Scaling Up
+/***************************************************************************************************
+
+Part of the DLH Training Class for AI and Postgres, and is meant for educational purposes to 
+demonstrate how to use PL/Python to call the Mistral API and generate embeddings for a simple fruit 
+store chatbot example.
+
+This file contains the SQL code to scale up the embedding generation for the fruit store chat bot 
+example, by generating embeddings for all fruits in the database in batches, and storing them in the 
+embedding table. 
+
+Copyright 2026: Marc Linster
+Last Update: 2026-11-17
+
+***************************************************************************************************/
 
 /*
 Creating a function that generates embeddings in small batches, and only if there is no embedding

@@ -1,12 +1,16 @@
 /*
-The effect of an index on an embedding column
 
 This example builds its own table in a separate schema index_demo in the database
 vector_index_demo with 50,000 synthetic 1024-dimensional vectors (the same size as mistral-embed), 
 so no LLM calls are needed.
+
+This is part of the DLH Training Class for AI and Postgres, and is meant for educational purposes to
+demonstrate how to work with vector indexes in Postgres and how to use the HNSW and IVVFlat 
+indexes for fast approximate nearest neighbor search.
+
+Last Update: 2026-11-17
 */
 
---- Setup -------------------------------------------------------------------
 
 CREATE EXTENSION IF NOT EXISTS vector;
 

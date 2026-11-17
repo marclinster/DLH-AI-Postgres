@@ -1,3 +1,16 @@
+/***************************************************************************************************
+
+Part of the DLH Training Class for AI and Postgres, and is meant for educational purposes to 
+demonstrate how to use PL/Python to call the Mistral chat API and generate text narrations for a simple fruit 
+store chatbot example.
+
+Copyright 2026: Marc Linster
+Last Update: 2026-11-17
+
+***************************************************************************************************/
+
+
+
 WITH q AS
    (SELECT api.mistral_embed ('Select tart and light yellow fruits for me') AS target_embedding)
 SELECT name,

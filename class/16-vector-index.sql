@@ -1,5 +1,8 @@
-/*
-The effect of an index on an embedding column
+/***************************************************************************************************
+
+Part of the DLH Training Class for AI and Postgres, and is meant for educational purposes to 
+demonstrate how to work with vector indexes.
+
 This example uses the database vector-index-demo, which is created by db-setup/vector-index.sql. It shows how
 - a similarity search without an index reads every row (Seq Scan)
 - an HNSW index (Hierarchical Navigable Small World) speeds up the search (Index Scan)
@@ -14,12 +17,16 @@ What you will see:
 5. The index is only used if the distance operator matches the index's operator class
 6. The alternative: an IVFFlat index, tuned with ivfflat.probes, compared to HNSW
 
+The results are stored in the table index_demo.search_result, which shows how many of the true top 
+10 were found and how long each search took.
+
 Run this in psql with timing turned on:
 \timing on
 
-Reference numbers (8 cores, 8 GB): data load ~1 min, HNSW build ~25 s, IVFFlat build ~2-12 s,
-search without index ~200-350 ms, with either index ~1-2 ms
-*/
+Copyright 2026: Marc Linster
+Last Update: 2026-11-17
+
+***************************************************************************************************/
 
 --- 1. Search WITHOUT an index ---------------------------------------------------
 

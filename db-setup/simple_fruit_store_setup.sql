@@ -1,9 +1,15 @@
 /* 
-  Setup script for the fruit store dataset with vector embeddings.
-  This script creates a table to hold fruit data along with their feature vectors,
-  and populates it with sample data for testing vector similarity queries.
-*/
+Setup script for the fruit store dataset with vector embeddings.
+This script creates a table to hold fruit data along with their feature vectors,
+and populates it with sample data for testing vector similarity queries.
 
+
+This is part of the DLH Training Class for AI and Postgres, and is meant for educational purposes to 
+demonstrate how to set up a database schema for vector embeddings and how to integrate with an 
+external API for generating those embeddings.
+
+Last Update: 2026-11-17
+*/
 
 CREATE EXTENSION IF NOT EXISTS vector;
 

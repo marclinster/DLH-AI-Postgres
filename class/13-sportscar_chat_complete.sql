@@ -1,46 +1,22 @@
 
 
-/*
+/***************************************************************************************************
 
-
-This should be run inside the database sportscars, which is created in the master_setup.sql script. 
-The master_setup.sql script also sets the MISTRAL_API_KEY environment variable, which is required for generating the embeddings using the Mistral API.
-
+Part of the DLH Training Class for AI and Postgres, and is meant for educational purposes to 
+demonstrate how to integrate with an external API for generating those embeddings.
 
 This is part of the DLH Training Class for AI and Postgres, and is meant for educational purposes to 
 demonstrate how to set up a database schema for vector embeddings and how to integrate with an 
 external API for generating those embeddings.
 
-This is the list of exercises in this file:
-    1) Create the function api.generate_embedding_text that takes a configuration ID and generates a detailed description text for 
-    that configuration by combining the brand name, model name, country of origin, price, description, and color from the vw_sportscars view. 
-    This text will be used as input for generating the embedding vector.
-    2) Create the function api.mistral_embed that takes an input text and calls the Mistral API to generate an embedding vector based on that 
-    text. This function will handle the API call and return the embedding vector as a Postgres vector type.
-    3) Create the function api.sportscar_embedding that takes a configuration ID, generates the description text using 
-    api.generate_embedding_text, and then calls api.mistral_embed to get the embedding vector for that configuration.
-    4) Create the function api.batch_sportscar_embedding that generates embedding vectors for all configurations in the database 
-    by iterating over all configuration IDs in batches of five, calling api.sportscar_embedding for each, and storing 
-    the results in the column configuration.embedding.
-    5) Create the trigger sportscar_embedding_trigger that automatically generates the embedding vector for a configuration 
-    whenever a new configuration is inserted or an existing one is updated, by calling api.sportscar_embedding with the appropriate configuration ID. 
-    6) Create the retriever function api.sf_retrieve_similar_car that takes a user question, generates an embedding for 
-    that question using api.mistral_embed, and retrieves the top 3 most similar cars from the database based on the embedding 
-    similarity search, with an additional condition to filter the cars based on a price range provided as input
-    7) Create the narrator function api.sf_narrate_selected_cars that takes the user question, the similar cars retrieved 
-    in JSON format, and the price range bounds, and generates a detailed description for the user based on the similar 
-    cars retrieved, including comments on how the price of the sportscars compares to the user's expectations based on their question.
-    8) Create the coordinator function api.sf_coordinator that takes the user question and price range, calls the 
-    retriever to get the similar cars, and then calls the narrator to generate a detailed description for the user.
+This is the filled-in version 12-sportscar_chat_framework.sql file, which contains the complete code for the 
+sportscar chat bot exercise, including the functions and triggers for generating embeddings, 
+as well as the retriever, narrator, and coordinator functions for implementing the chatbot functionality.
 
+Copyright 2026: Marc Linster
+Last Update: 2026-11-17
 
-Make sure to test each function after you create it by running the provided test queries, and check the results to ensure that everything is working correctly.
-Last Update: 2026-05-05
-
-
-
-
-*/
+***************************************************************************************************/
 
 -- we will generate all the code in the api schema, just like the fruits example
 CREATE SCHEMA IF NOT EXISTS api;

@@ -3,7 +3,7 @@
 Loads Luxembourg address data into the table address, which is defined in address.sql.
 
 2026 Copyright: Marc Linster
-Last updated Oct 6, 2026
+Last Update: 2026-11-15
 
 ****************************************************************************************************/
 

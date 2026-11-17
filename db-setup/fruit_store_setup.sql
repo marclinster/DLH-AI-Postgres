@@ -14,7 +14,7 @@ This is part of the DLH Training Class for AI and Postgres, and is meant for edu
  emonstrate how to set up a database schema for vector embeddings and how to integrate with an 
 external API for generating those embeddings.
 
-Last Update: 2026-04-30
+Last Update: 2026-11-17
 */
 
 

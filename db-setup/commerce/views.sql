@@ -1,3 +1,17 @@
+/***************************************************************************************************
+
+Sets up a simple view summarizing customer information, including their address and purchase history.
+
+2026 Copyright: Marc Linster
+Last Update: 2026-11-17
+
+****************************************************************************************************/
+
+
+
+
+
+
 CREATE MATERIALIZED VIEW customer_summary_mv AS
 SELECT c.id as customer_id,
        c.first_name,

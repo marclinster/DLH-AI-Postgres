@@ -1,20 +1,17 @@
 
 
-/* 
 /***************************************************************************************************
 
-Database setup script for the DLH Advanced SQL course. This file provides
-an overview of stored procedures in PLPGSQL and PL/Python.
+Part of the DLH Training Class for AI and Postgres, and is meant for educational purposes to 
+demonstrate how to become comfortable with stored procedures and functions in Postgres.
 
-The examples use the database commerce, which is created by the setup.sql script.
+Copyright 2026: Marc Linster
+Last Update: 2026-11-17
 
-2026 Copyright: Marc Linster
-Last updated Oct 6, 2026
-
-****************************************************************************************************/
+***************************************************************************************************/
 
 
-*/
+
 
 /* simple procedure to increase price of all products in a category by a fixed amount
 this definition is just for training purposes. In real life you would just call the 

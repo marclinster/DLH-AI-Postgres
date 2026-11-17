@@ -1,4 +1,7 @@
-/*
+/***************************************************************************************************
+
+Part of the DLH Training Class for AI and Postgres, and is meant for educational purposes to 
+demonstrate how to integrate with an external API for generating those embeddings.
 
 This extends the sportscar chatbot exercise by adding a SQL condition for the price of the sportscar, and 
 then we will test the chatbot with a query that includes the price condition.
@@ -7,12 +10,16 @@ and it filters the results to only include sportscars that are below a certain p
 In this example, we will set the price threshold to $100,000, which means that the chatbot will only return 
 sportscar configurations that are priced below $100,000.
 
-The prce condition will be an upper and lower bound, so we will set the price threshold to a range of $50,000 to $100,000, which means that the chatbot will only return
-sportscar configurations that are priced between $50,000 and $100,000.
+The prce condition will be an upper and lower bound, for example we will set the price threshold 
+to a range of $50,000 to $100,000, which means that the chatbot will only return sportscar configurations 
+that are priced between $50,000 and $100,000.
+
+Copyright 2026: Marc Linster
+Last Update: 2026-11-17
+
+***************************************************************************************************/
 
 
-
-*/
 
 CREATE SCHEMA IF NOT EXISTS api;
 

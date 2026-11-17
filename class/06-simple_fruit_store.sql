@@ -1,3 +1,15 @@
+/***************************************************************************************************
+
+
+Part of the DLH Training Class for AI and Postgres, and is meant for educational purposes to 
+demonstrate how to become comfortable with vectors in Postgres.
+
+Copyright 2026: Marc Linster
+Last Update: 2026-11-15
+
+***************************************************************************************************/
+
+
 SELECT id, name, description,
        features <-> '[0.95,0.90,0.80]' AS distance
 FROM fruit_vectors

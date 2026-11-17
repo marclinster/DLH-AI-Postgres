@@ -25,7 +25,7 @@ The phone numbers are generated in the following format:
 
 
 2026 Copyright: Marc Linster
-Last updated Nov 2, 2026
+Last Update: 2026-11-15
 
 ****************************************************************************************************/
 

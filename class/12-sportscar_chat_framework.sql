@@ -1,5 +1,9 @@
+/***************************************************************************************************
 
-/* 
+Part of the DLH Training Class for AI and Postgres, and is meant for educational purposes to 
+demonstrate how to integrate with an external API for generating those embeddings.
+
+
 This has the high-level framework for the sportscar chat bot exercise, which is meant to demonstrate how to set up a 
 database schema for vector embeddings and how to integrate with an external API for generating those embeddings, 
 as well as how to implement a simple retriever-narrator-coordinator architecture for a chatbot that can answer 
@@ -7,7 +11,8 @@ questions about sports cars based on the data in the database and the embeddings
 
 Instructions:
 1) Set this up in the schema called API inside the sportscars database, which is created in the master_setup.sql script.
-2) Use the template below and fill it in by looking at the code in the fruit_store examples, which contains similar functionality but for a fruit store example.
+2) Use the template below and fill in the functiona dn procedure bodiesby looking at the code in the fruit_store examples, 
+   which contains similar functionality but for a fruit store example.
 3) The code will include:
    a) A function to generate the complete description text for a given car configuration, which will combine the brand name, model name, country of origin, price, description, and color into a single text string that can be used for embedding generation.
    b) A function to call the Mistral API and generate the embedding vector based on a given text input.
@@ -16,13 +21,11 @@ Instructions:
    e) A trigger that automatically generates the embedding vector for a car configuration whenever a new configuration is inserted or an existing one is updated, by calling the appropriate embedding generation function with the configuration ID.
    f) Retriever, Narrator, and Coordinator functions to implement the full chatbot functionality, allowing users to ask questions about the cars and receive detailed responses based on the data in the database and the embeddings generated from that data.  
 
+Copyright 2026: Marc Linster
+Last Update: 2026-11-17
 
-This is part of the DLH Training Class for AI and Postgres, and is meant for educational purposes to 
-demonstrate how to set up a database schema for vector embeddings and how to integrate with an 
-external API for generating those embeddings.
+***************************************************************************************************/
 
-Last Update: 2026-05-04
-*/     
 
 
 -- we will generate all the code in the api schema, just like the fruits example
