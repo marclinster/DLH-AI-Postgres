@@ -1,6 +1,6 @@
 /***************************************************************************************************
 
-Sets up a simple view summarizing customer information, including their address and purchase history.
+Sets up a materialized view summarizing customer information, including their address and purchase history.
 
 2026 Copyright: Marc Linster
 Last Update: 2026-11-17

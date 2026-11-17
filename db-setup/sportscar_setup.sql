@@ -2,14 +2,13 @@
 This SQL script sets up the database schema for a sportscar database, which includes tables for
 brands, countries, colors, models, configurations (model + color combinations), and embeddings for the configurations.
 
-This should be run inside the database sportscars, which is created in the master_setup.sql script. 
-The master_setup.sql script also sets the MISTRAL_API_KEY environment variable, which is required for generating the embeddings using the Mistral API.
-
+This should be run inside the database sportscar, which is created in the master_setup.sql script. 
 
 This is part of the DLH Training Class for AI and Postgres, and is meant for educational purposes to 
 demonstrate how to set up a database schema for vector embeddings and how to integrate with an 
 external API for generating those embeddings.
 
+Copyright 2026: Marc Linster
 Last Update: 2026-11-17
 */
 

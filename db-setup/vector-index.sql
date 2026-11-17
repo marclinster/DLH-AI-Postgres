@@ -5,8 +5,11 @@ vector_index_demo with 50,000 synthetic 1024-dimensional vectors (the same size 
 so no LLM calls are needed.
 
 This is part of the DLH Training Class for AI and Postgres, and is meant for educational purposes to
-demonstrate how to work with vector indexes in Postgres and how to use the HNSW and IVVFlat 
+demonstrate how to work with vector indexes in Postgres and how to use the HNSW and IVFFlat 
 indexes for fast approximate nearest neighbor search.
+
+The indexes are created in the corresponding class file, where we vary the parameters to study
+the effects.
 
 Last Update: 2026-11-17
 */

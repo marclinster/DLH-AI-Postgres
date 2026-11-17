@@ -1,8 +1,6 @@
-
-
 /***************************************************************************************************
 
-Sets up a simple address table.
+Creates a simple Luxembourg address table.
 
 2026 Copyright: Marc Linster
 Last Update: 2026-11-15

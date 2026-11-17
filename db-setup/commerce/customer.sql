@@ -1,27 +1,15 @@
 /***************************************************************************************************
 
-Defines a table to manage product customers for the Luxembourg market. 
+Defines a table to manage customers for the Luxembourg market. 
 
 By default, it generates 5000 random customers with random first and last names, 
-and random phone numbers, that are stored as JSONB objects. The phone numbers are generated in the following format that groups 
-them into work and private using JSONB keys, and then uses arrays to store multiple phone numbers for each group. 
-Each humber has two keys, one for the country code and one for the number itself. 
-The country code is  (+352) for Luxembourg, (+49) for Germany, and the number is a random 9-digit number.
-The phone numbers are generated in the following format:
-
-    {
-        "work": {
-            [
-                {"country_code": "(+352)", "number": "123 456 789"},
-                {"country_code": "(+49)", "number": "987 654 321"}]
-        },
-        "private": {
-            [
-                {"country_code": "(+352)", "number": "234 567 890"},
-                {"country_code": "(+49)", "number": "345 678 901"}]     
-        }
-    }
-
+and random phone numbers, that are stored as JSONB objects. The phone numbers are generated in 
+the following format that groups them into work and private using JSONB keys, and 
+then uses arrays to store multiple phone numbers for each group. Each group has 1-2 random numbers,
+and each number is generated with a random country code and a random 9-digit number.
+The country codes are +352, +49, +33, +44 and +1 and the number is a random 9-digit number.
+Each customer is also assigned a random address from the address table, which is assumed to 
+be already populated with data.
 
 
 2026 Copyright: Marc Linster

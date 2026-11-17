@@ -1,6 +1,7 @@
 /***************************************************************************************************
 
 Creates the table product and loads sample data into it. 
+It also defines the view product_category_vw which joins product and category together.
 
 The sproc reset_product_prices() is also created to reset the prices of the products to their original values.
 
